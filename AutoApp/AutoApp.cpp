@@ -1,4 +1,4 @@
-// AutoAppVS12.cpp : Defines the entry point for the console application.
+// AutoApp.cpp : Defines the entry point for the console application.
 
 #include "stdafx.h"
 #include <string>
@@ -422,8 +422,10 @@ void AutoClass::addFuel(Fuel fuel)
 		std::cin.clear();
 		std::cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
 	}
-	if(verify)
+	if (verify) {
 		inputFuel(fuel);
+		std::cout << "Добавлено\n";
+	}
 	else
 		std::cout << "Введены неверные данные, сущность не добавлена!" << std::endl;
 }
@@ -471,7 +473,10 @@ void AutoClass::addSelling(Selling selling)
 		std::cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
 	}
 	if (verify)
+	{
 		inputSelling(selling);
+		std::cout << "Добавлено\n";
+	}
 	else
 		std::cout << "Введены неверные данные, сущность не добавлена!" << std::endl;
 }
@@ -489,6 +494,7 @@ void AutoClass::addVendor(Vendor vendor)
 	std::cout << "Введите Имя продавца" << std::endl;
 	std::cin >> vendor.name_vendor;
 	inputVendor(vendor);
+	std::cout << "Добавлено\n";
 }
 
 void AutoClass::addPurchase(Purchase purchase)
@@ -511,6 +517,20 @@ void AutoClass::addPurchase(Purchase purchase)
 		std::cin.clear();
 		std::cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
 	}
+	else
+	{
+		verify = false;
+		for (std::map<int, Agent>::iterator i = agents.begin(); i != agents.end(); ++i)
+		{
+			if (i->second.id_agent == purchase.id_agent)
+			{
+				verify = true;
+			}
+		}
+		if (!verify)
+			std::cout << "Сущности с данным номером не существует\n";
+	}
+	
 	std::cout << "Введите номер вида топлива" << std::endl;
 	std::cin >> purchase.id_fuel;
 	if (!std::cin)
@@ -519,6 +539,19 @@ void AutoClass::addPurchase(Purchase purchase)
 		std::cout << "Введено не целое число\n";
 		std::cin.clear();
 		std::cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
+	}
+	else
+	{
+		verify = false;
+		for (std::map<int, Fuel>::iterator i = fuels.begin(); i != fuels.end(); ++i)
+		{
+			if (i->second.id_fuel == purchase.id_fuel)
+			{
+				verify = true;
+			}
+		}
+		if (!verify)
+			std::cout << "Сущности с данным номером не существует\n";
 	}
 	std::cout << "Введите количество топлива" << std::endl;
 	std::cin >> purchase.amount;
@@ -529,8 +562,16 @@ void AutoClass::addPurchase(Purchase purchase)
 		std::cin.clear();
 		std::cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
 	}
-	if(verify)
+	else if (purchase.amount < 0)
+	{
+		verify = false;
+		std::cout << "Введено отрицательное число\n";
+	}
+	if (verify)
+	{
 		inputPurchase(purchase);
+		std::cout << "Добавлено\n";
+	}
 	else
 		std::cout << "Введены неверные данные, сущность не добавлена!" << std::endl;
 }
@@ -548,6 +589,7 @@ void AutoClass::addAgent(Agent agent)
 	std::cout << "Введите Имя агента" << std::endl;
 	std::cin >> agent.name_agent;	
 	inputAgent(agent);
+	std::cout << "Добавлено\n";
 }
 
 #pragma endregion add
@@ -585,6 +627,8 @@ void AutoClass::updateAgent(Agent agent)
 
 void AutoClass::deleteFuel(Fuel fuel)
 {
+
+
 	bool exist = false;
 
 	for (std::map<int, Selling>::iterator selling = sellings.begin(); selling != sellings.end(); ++selling)
@@ -614,60 +658,81 @@ void AutoClass::deleteFuel(Fuel fuel)
 
 void AutoClass::deleteSelling(Selling selling)
 {
-
-	sellings.erase(selling.id_order);
-	std::cout << "Успешно удалено!" << std::endl;
+	if (sellings.find(selling.id_order) != sellings.end())
+	{
+		sellings.erase(selling.id_order);
+		std::cout << "Успешно удалено!" << std::endl;
+	}
+	else
+		std::cout << "Несуществующий номер сущности";
 }
 
 void AutoClass::deleteVendor(Vendor vendor)
 {
-
-	bool exist = false;
-
-	for (std::map<int, Selling>::iterator selling = sellings.begin(); selling != sellings.end(); ++selling)
+	if (vendors.find(vendor.id_vendor) != vendors.end())
 	{
-		if (selling->second.id_vendor == vendor.id_vendor)
+
+		bool exist = false;
+
+		for (std::map<int, Selling>::iterator selling = sellings.begin(); selling != sellings.end(); ++selling)
 		{
-			exist = true;
+			if (selling->second.id_vendor == vendor.id_vendor)
+			{
+				exist = true;
+			}
 		}
-	}
 
-	
-	if (!exist)
-	{
-		vendors.erase(vendor.id_vendor);
-		std::cout << "Успешно удалено!" << std::endl;
+
+		if (!exist)
+		{
+			vendors.erase(vendor.id_vendor);
+			std::cout << "Успешно удалено!" << std::endl;
+		}
+		else
+			std::cout << "Удалите номер из зависимой сущности, Учет продаж!\n";
 	}
 	else
-		std::cout << "Удалите номер из зависимой сущности, Учет продаж!\n";
+	{
+		std::cout << "Не существующий номер\n";
+	}
 }
 
 void AutoClass::deletePurchase(Purchase purchase)
 {
-	purchases.erase(purchase.id_purchase);
-	std::cout << "Успешно удалено!" << std::endl;
+	if (purchases.find(purchase.id_purchase) != purchases.end())
+	{
+		purchases.erase(purchase.id_purchase);
+		std::cout << "Успешно удалено!" << std::endl;
+	}
+	else
+		std::cout << "Не сущесвующий номер\n";
 }
 
 void AutoClass::deleteAgent(Agent agent)
 {
-	bool exist = false;
-
-	
-	for (std::map<int, Purchase>::iterator purchase = purchases.begin(); purchase != purchases.end(); ++purchase)
+	if (agents.find(agent.id_agent) != agents.end())
 	{
-		if (purchase->second.id_agent == agent.id_agent)
+		bool exist = false;
+
+
+		for (std::map<int, Purchase>::iterator purchase = purchases.begin(); purchase != purchases.end(); ++purchase)
 		{
-			exist = true;
+			if (purchase->second.id_agent == agent.id_agent)
+			{
+				exist = true;
+			}
 		}
-	}
 
-	if (!exist)
-	{
-		agents.erase(agent.id_agent);
-		std::cout << "Успешно удалено!" << std::endl;
+		if (!exist)
+		{
+			agents.erase(agent.id_agent);
+			std::cout << "Успешно удалено!" << std::endl;
+		}
+		else
+			std::cout << "Удалите номер из зависимой сущности, Закупки топлива!\n";
 	}
 	else
-		std::cout << "Удалите номер из зависимой сущности, Закупки топлива!\n";
+		std::cout << "Не существующий номер\n";
 }
 
 #pragma endregion delete
@@ -677,6 +742,11 @@ void AutoClass::deleteAgent(Agent agent)
 void AutoClass::outputFuel(Fuel fuel)
 { 
 	std::map<int, Fuel>::iterator fuelIter = fuels.find(fuel.id_fuel);
+	if (fuelIter == fuels.end())
+	{
+		std::cout << "Номер не существует" << endl;
+		return;
+	}
 	cout << Fuels[2] << fuelIter->second.id_fuel << endl;
 	cout << Fuels[3] << fuelIter->second.cost << endl;
 	cout << Fuels[4] << fuelIter->second.name << endl;
@@ -686,6 +756,10 @@ void AutoClass::outputFuel(Fuel fuel)
 void AutoClass::outputSelling(Selling selling)
 {
 	std::map<int, Selling>::iterator sellingIter = sellings.find(selling.id_order);
+	if (sellingIter == sellings.end()) {
+		cout << "Номера не существует";
+		return;
+	}
 	cout << Sellings[2] << sellingIter->second.id_order << endl;
 	cout << Sellings[3] << sellingIter->second.id_fuel << endl;
 	cout << Sellings[4] << sellingIter->second.id_vendor << endl;
@@ -695,6 +769,10 @@ void AutoClass::outputSelling(Selling selling)
 void AutoClass::outputVendor(Vendor vendor)
 {
 	std::map<int, Vendor>::iterator vendorIter = vendors.find(vendor.id_vendor);
+	if (vendorIter == vendors.end()) {
+		cout << "Номера не существует";
+		return;
+	}
 	cout << Vendors[2] << vendorIter->second.id_vendor << endl;
 	cout << Vendors[3] << vendorIter->second.name_vendor << endl;
 }
@@ -702,6 +780,10 @@ void AutoClass::outputVendor(Vendor vendor)
 void AutoClass::outputPurchase(Purchase purchase)
 {
 	std::map<int, Purchase>::iterator purchaseIter = purchases.find(purchase.id_purchase);
+	if (purchaseIter == purchases.end()) {
+		cout << "Номера не существует";
+		return;
+	}
 	cout << Purchases[2] << purchaseIter->second.id_purchase << endl;
 	cout << Purchases[3] << purchaseIter->second.id_agent << endl;
 	cout << Purchases[4] << purchaseIter->second.id_fuel << endl;
@@ -710,7 +792,12 @@ void AutoClass::outputPurchase(Purchase purchase)
 
 void AutoClass::outputAgent(Agent agent)
 {
+
 	std::map<int, Agent>::iterator agentIter = agents.find(agent.id_agent);
+	if (agentIter == agents.end()) {
+		cout << "Номера не существует";
+		return;
+	}
 	cout << Agents[2] << agentIter->second.id_agent << endl;
 	cout << Agents[3] << agentIter->second.name_agent << endl;
 }
