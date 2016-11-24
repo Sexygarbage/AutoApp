@@ -350,6 +350,7 @@ void AutoClass::inputAllAgent()
 
 void AutoClass::addFuel(Fuel fuel)
 {
+	bool verify = true;
 	std::cout << "¬ведите Ќазвание вида топлива" << std::endl;
 	std::cin >> fuel.name;
 	std::cout << "¬ведите цену топлива" << std::endl;
@@ -357,7 +358,17 @@ void AutoClass::addFuel(Fuel fuel)
 
 	std::cout << "¬ведите количество вида топлива" << std::endl;
 	std::cin >> fuel.amount;
-	inputFuel(fuel);
+	if (!std::cin)
+	{
+		verify = false;
+		std::cout << "¬ведено не вещественное число\n";
+		std::cin.clear();
+		std::cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
+	}
+	if(verify)
+		inputFuel(fuel);
+	else
+		std::cout << "¬ведены неверные данные, сущность не добавлена!" << std::endl;
 }
 
 void AutoClass::addSelling(Selling selling)
@@ -393,8 +404,10 @@ void AutoClass::addSelling(Selling selling)
 		std::cin.clear();
 		std::cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
 	}
-	if(verify)
+	if (verify)
 		inputSelling(selling);
+	else
+		std::cout << "¬ведены неверные данные, сущность не добавлена!" << std::endl;
 }
 
 void AutoClass::addVendor(Vendor vendor)
@@ -436,6 +449,8 @@ void AutoClass::addPurchase(Purchase purchase)
 	}
 	if(verify)
 		inputPurchase(purchase);
+	else
+		std::cout << "¬ведены неверные данные, сущность не добавлена!" << std::endl;
 }
 
 void AutoClass::addAgent(Agent agent)
