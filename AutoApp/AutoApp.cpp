@@ -12,6 +12,7 @@
 #undef max  //Разрешение конфликтов std:: и windows.h
 
 using namespace std;
+using std::cout;
 using namespace System;
 //Отключение предупреждениея для записи считывания из файла
 #pragma warning(disable:4996)
@@ -693,22 +694,161 @@ void AutoClass::updateFuel(Fuel fuel)
 
 void AutoClass::updateSelling(Selling selling)
 {
-	addSelling(selling);//TODO: do like updateFuel
+	if (sellings.find(selling.id_fuel) != sellings.end())
+	{
+		bool verify = true;
+		string verifyString = "";
+		std::cout << "Введите Номер вида топлива" << std::endl;
+		std::cin >> selling.id_fuel;
+		if (!std::cin)
+		{
+			verify = false;
+			std::cout << "Введено не целое число\n";
+			std::cin.clear();
+			std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+		}
+		std::cout << "Введите номер продавца" << std::endl;
+		std::cin >> selling.id_vendor;
+		if (!std::cin)
+		{
+			verify = false;
+			std::cout << "Введено не целое число\n";
+			std::cin.clear();
+			std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+		}
+
+
+		std::cout << "Введите количество топлива" << std::endl;
+		std::cin >> selling.amount;
+		if (!std::cin)
+		{
+			verify = false;
+			std::cout << "Введено не вещественное число\n";
+			std::cin.clear();
+			std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+		}
+		if (verify)
+		{
+			inputSelling(selling);
+			std::cout << "Обновлено\n";
+		}
+		else
+			std::cout << "Введены неверные данные, сущность не обновлена!" << std::endl;
+	}
+	else
+	{
+		std::cout << "Не верный номер, не обновлено!\n";
+	}
 }
 
 void AutoClass::updateVendor(Vendor vendor)
 {
-	addVendor(vendor);
+	if (vendors.find(vendor.id_vendor) != vendors.end())
+	{
+		std::cout << "Введите Имя продавца" << std::endl;
+		std::cin >> vendor.name_vendor;
+		inputVendor(vendor);
+		std::cout << "Добавлено\n";
+	}
+	else
+	{
+		std::cout << "Не существущий номер! Не обновлено!\n";
+	}
 }
+
 
 void AutoClass::updatePurchase(Purchase purchase)
 {
-	addPurchase(purchase);
+	if (purchases.find(purchase.id_purchase) != purchases.end())
+	{
+		bool verify = true;
+		std::cout << "Введите Номер агента" << std::endl;
+		std::cin >> purchase.id_agent;
+		if (!std::cin)
+		{
+			verify = false;
+			std::cout << "Введено не целое число\n";
+			std::cin.clear();
+			std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+		}
+		else
+		{
+			verify = false;
+			for (std::map<int, Agent>::iterator i = agents.begin(); i != agents.end(); ++i)
+			{
+				if (i->second.id_agent == purchase.id_agent)
+				{
+					verify = true;
+				}
+			}
+			if (!verify)
+				std::cout << "Сущности с данным номером не существует\n";
+		}
+
+		std::cout << "Введите номер вида топлива" << std::endl;
+		std::cin >> purchase.id_fuel;
+		if (!std::cin)
+		{
+			verify = false;
+			std::cout << "Введено не целое число\n";
+			std::cin.clear();
+			std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+		}
+		else
+		{
+			verify = false;
+			for (std::map<int, Fuel>::iterator i = fuels.begin(); i != fuels.end(); ++i)
+			{
+				if (i->second.id_fuel == purchase.id_fuel)
+				{
+					verify = true;
+				}
+			}
+			if (!verify)
+				std::cout << "Сущности с данным номером не существует\n";
+		}
+		std::cout << "Введите количество топлива" << std::endl;
+		std::cin >> purchase.amount;
+		if (!std::cin)
+		{
+			verify = false;
+			std::cout << "Введено не вещественное число\n";
+			std::cin.clear();
+			std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+		}
+		else if (purchase.amount < 0)
+		{
+			verify = false;
+			std::cout << "Введено отрицательное число\n";
+		}
+		if (verify)
+		{
+			inputPurchase(purchase);
+			std::cout << "Обновлено\n";
+		}
+		else
+			std::cout << "Введены неверные данные, сущность не обновлена!" << std::endl;
+	}
+	else
+	{
+		std::cout << "Введенный номер не существует, не обновлено!" << endl;
+	}
+
 }
 
 void AutoClass::updateAgent(Agent agent)
 {
-	addAgent(agent);
+	if (agents.find(agent.id_agent) != agents.end())
+	{
+		std::cout << "Введите Имя агента" << std::endl;
+		std::cin >> agent.name_agent;
+		inputAgent(agent);
+		std::cout << "Обновлено\n";
+	}
+	else
+	{
+		std::cout << "Введенный номер не существует, не обновлено!" << std::endl;
+	}
 }
 
 #pragma endregion update
@@ -1036,139 +1176,314 @@ void AutoClass::readFromAll(string path)
 
 	readFromSelling(path);
 	readFromPurchases(path);
-	cout << "Сущности загружены\n";
+	//cout << "Сущности загружены\n";
 }
 
 void AutoClass::readFromFuels(string path)
 {
 	Fuel fuel;
-	int count_map;
+	int count_map=0;
 	//чтение из файла в структуру(сущность fuel)
 	//FILE *fread;
 	//fread = fopen("fuel.txt", "r");
 	ifstream fin(path + Fuels[0]);
-	fin.ignore(Fuels[1].size());
-	fin >> count_map;
-	fin.ignore(strlen("\n"));
-	for (int i = 0; i < count_map; i++)
+	if (fin.is_open())
 	{
-		//fin.ignore(strlen("Fuel: "));
-		fin.ignore(Fuels[2].size());
-		fin >> fuel.id_fuel;
+
+		fin.ignore(Fuels[1].size());
+		fin >> count_map; if (count_map == 0 || count_map == -1) cout << "Не добавлено" << endl;
 		fin.ignore(strlen("\n"));
-		//fin.ignore(strlen("Cost: "));
-		fin.ignore(Fuels[3].size());
-		fin >> fuel.cost;
-		fin.ignore(strlen("\n"));
-		//fin.ignore(strlen("Name: "));
-		fin.ignore(Fuels[4].size());
-		fin >> fuel.name;
-		fin.ignore(strlen("\n"));
-		fin.ignore(Fuels[5].size());
-		//fin.ignore(strlen("Amount: "));
-		fin >> fuel.amount;
-		fin.ignore(strlen("\n"));
-		fuels[fuel.id_fuel] = fuel;
+		for (int i = 0; i < count_map; i++)
+		{
+			//fin.ignore(strlen("Fuel: "));
+			fin.ignore(Fuels[2].size());
+			fin >> fuel.id_fuel;
+			if (fuels.find(fuel.id_fuel) != fuels.end())
+			{
+				cout << "Номер уже существует" << endl;
+				continue;
+
+			}
+			else
+			{
+				cout << Fuels[2] << fuel.id_fuel << endl;
+			}
+			fin.ignore(strlen("\n"));
+
+			//fin.ignore(strlen("Cost: "));
+			fin.ignore(Fuels[3].size());
+			fin >> fuel.cost;
+			if (fuel.cost < 0)
+			{
+				cout << "Значение отрицательно, запись не будет считана" << endl;
+				continue;
+			}
+			else
+			{
+				cout << Fuels[3] << fuel.cost << endl;
+			}
+			fin.ignore(strlen("\n"));
+
+			//fin.ignore(strlen("Name: "));
+			fin.ignore(Fuels[4].size());
+			fin >> fuel.name;
+			cout << Fuels[4] << fuel.name << endl;
+
+			fin.ignore(strlen("\n"));
+			fin.ignore(Fuels[5].size());
+			//fin.ignore(strlen("Amount: "));
+			fin >> fuel.amount;
+			if (fuel.amount < 0)
+			{
+				cout << "Значение отрицательно, запись не будет считана" << endl;
+				continue;
+			}
+			else
+			{
+				cout << Fuels[5] << fuel.amount << endl;
+			}
+			fin.ignore(strlen("\n"));
+
+			fuels[fuel.id_fuel] = fuel;
+			cout << " - Добавлено\n";
+		}
+	}
+	else
+	{
+		std::cout << "Файл не был создан" << endl;
 	}
 }
 
 void AutoClass::readFromSelling(string path)
 {
 	Selling selling;
-	int count_map;
+	int count_map = 0;
 	ifstream fin(path + Sellings[0]);
-	fin.ignore(Sellings[1].size());
-	fin >> count_map;
-	fin.ignore(strlen("\n"));
-	for (int i = 0; i < count_map; i++)
+	if (fin.is_open())
 	{
-		fin.ignore(Sellings[2].size());
-		fin >> selling.id_order;
+		fin.ignore(Sellings[1].size());
+		fin >> count_map; if (count_map == 0 || count_map == -1) cout << "Не добавлено" << endl;
 		fin.ignore(strlen("\n"));
+		for (int i = 0; i < count_map; i++)
+		{
+			fin.ignore(Sellings[2].size());
+			fin >> selling.id_order;
+			fin.ignore(strlen("\n"));
+			if (sellings.find(selling.id_order) != sellings.end())
+			{
+				cout << "Номер уже существует" << endl;
+				continue;
+			}
+			else
+			{
+				cout << Sellings[2] << selling.id_order << endl;
+			}
 
-		fin.ignore(Sellings[3].size());
-		fin >> selling.id_fuel;
-		fin.ignore(strlen("\n"));
+			fin.ignore(Sellings[3].size());
+			fin >> selling.id_fuel;
+			fin.ignore(strlen("\n"));
+			if (fuels.find(selling.id_fuel) == fuels.end())
+			{
+				cout << "Номера не существует, запись не будет считана" << endl;
+				continue;
+			}
+			else
+			{
+				cout << Sellings[3] << selling.id_fuel << endl;
+			}
 
-		fin.ignore(Sellings[4].size());
-		fin >> selling.id_vendor;
-		fin.ignore(strlen("\n"));
+			fin.ignore(Sellings[4].size());
+			fin >> selling.id_vendor;
+			fin.ignore(strlen("\n"));
+			if (vendors.find(selling.id_vendor) == vendors.end())
+			{
+				cout << "Номера не существует, запись не будет считана" << endl;
+				continue;
+			}
+			else
+			{
 
-		fin.ignore(Sellings[5].size());
-		fin >> selling.amount;
-		fin.ignore(strlen("\n"));
-		sellings[selling.id_order] = selling;
+				cout << Sellings[4] << selling.id_vendor << endl;
+			}
+
+			fin.ignore(Sellings[5].size());
+			fin >> selling.amount;
+			if (selling.amount < 0)
+			{
+				cout << "Значение отрицательно, запись не будет считана" << endl;
+				continue;
+			}
+			else
+			{
+				cout << Sellings[5] << selling.amount << endl;
+			}
+			fin.ignore(strlen("\n"));
+
+
+			sellings[selling.id_order] = selling;
+			cout << " - Добавлено\n";
+		}
+	}
+	else
+	{
+		std::cout << "Файл не был создан" << endl;
 	}
 }
 
 void AutoClass::readFromVendors(string path)
 {
 	Vendor vendor;
-	int count_map;
+	int count_map = 0;
 	ifstream fin(path + Vendors[0]);
-	fin.ignore(Vendors[1].size());
-	fin >> count_map;
-	fin.ignore(strlen("\n"));
-	for (int i = 0; i < count_map; i++)
+	if (fin.is_open())
 	{
-		fin.ignore(Vendors[2].size());
-		fin >> vendor.id_vendor;
+		fin.ignore(Vendors[1].size());
+		fin >> count_map; if (count_map == 0 || count_map == -1) cout << "Не добавлено" << endl;
 		fin.ignore(strlen("\n"));
+		for (int i = 0; i < count_map; i++)
+		{
+			fin.ignore(Vendors[2].size());
+			fin >> vendor.id_vendor;
+			fin.ignore(strlen("\n"));
+			if (vendors.find(vendor.id_vendor) != vendors.end())
+			{
+				cout << "Номер уже существует" << endl;
+				continue;
+			}
+			else
+			{
+				cout << Vendors[2] << vendor.id_vendor << endl;
+			}
 
-		fin.ignore(Vendors[3].size());
-		fin >> vendor.name_vendor;
-		fin.ignore(strlen("\n"));
+			fin.ignore(Vendors[3].size());
+			fin >> vendor.name_vendor;
+			fin.ignore(strlen("\n"));
+			cout << Vendors[3] << vendor.name_vendor << endl;
 
+			inputVendor(vendor);
+			cout << " - Добавлено\n";
+		}
+	}
+	else
+	{
+		cout << "Файл не существует, не загружено" << endl;
 	}
 }
 
 void AutoClass::readFromPurchases(string path)
 {
 	Purchase purchase;
-	int count_map;
+	int count_map = 0;
 	ifstream fin(path + Purchases[0]);
-	fin.ignore(Purchases[1].size());
-	fin >> count_map;
-	fin.ignore(strlen("\n"));
-	for (int i = 0; i < count_map; i++)
+	if (fin.is_open())
 	{
-		fin.ignore(Purchases[2].size());
-		fin >> purchase.id_purchase;
+		fin.ignore(Purchases[1].size());
+		fin >> count_map; if (count_map == 0 || count_map == -1) cout << "Не добавлено" << endl;
 		fin.ignore(strlen("\n"));
+		for (int i = 0; i < count_map; i++)
+		{
+			fin.ignore(Purchases[2].size());
+			fin >> purchase.id_purchase;
+			fin.ignore(strlen("\n"));
+			if (purchases.find(purchase.id_purchase) != purchases.end())
+			{
+				cout << "Номер уже существует" << endl;
+				continue;
+			}
+			else
+			{
+				cout << Purchases[2] << purchase.id_purchase << endl;
+			}
 
-		fin.ignore(Purchases[3].size());
-		fin >> purchase.id_agent;
-		fin.ignore(strlen("\n"));
+			fin.ignore(Purchases[3].size());
+			fin >> purchase.id_agent;
+			fin.ignore(strlen("\n"));
+			if (agents.find(purchase.id_agent) == agents.end())
+			{
+				cout << "Номера не существует, запись не будет считана" << endl;
+				continue;
+			}
+			else
+			{
+				cout << Purchases[3] << purchase.id_agent << endl;
+			}
 
-		fin.ignore(Purchases[4].size());
-		fin >> purchase.id_fuel;
-		fin.ignore(strlen("\n"));
+			fin.ignore(Purchases[4].size());
+			fin >> purchase.id_fuel;
+			fin.ignore(strlen("\n"));
+			if (fuels.find(purchase.id_fuel) == fuels.end())
+			{
+				cout << "Номера не существует, запись не будет считана" << endl;
+				continue;
+			}
+			else
+			{
+				cout << Purchases[4] << purchase.id_fuel << endl;
+			}
 
-		fin.ignore(Purchases[5].size());
-		fin >> purchase.amount;
-		fin.ignore(strlen("\n"));
-		purchases[purchase.id_purchase] = purchase;
+			fin.ignore(Purchases[5].size());
+			fin >> purchase.amount;
+			fin.ignore(strlen("\n"));
+			if (purchase.amount < 0)
+			{
+				cout << "Значение отрицательно, запись не будет считана" << endl;
+				continue;
+			}
+			else
+			{
+				cout << Purchases[5] << purchase.amount << endl;
+			}
+
+			purchases[purchase.id_purchase] = purchase;
+			cout << " - Добавлено\n";
+		}
+	}
+	else
+	{
+		cout << "Файл не загружен" << endl;
 	}
 }
 
 void AutoClass::readFromAgents(string path)
 {
+	
 	Agent agent;
-	int count_map;
+	int count_map = 0;
 	ifstream fin(path + Agents[0]);
-	fin.ignore(Agents[1].size());
-	fin >> count_map;
-	fin.ignore(strlen("\n"));
-	for (int i = 0; i < count_map; i++)
+	if (fin.is_open())
 	{
-		fin.ignore(Agents[2].size());
-		fin >> agent.id_agent;
+		
+		fin.ignore(Agents[1].size());
+		fin >> count_map; if (count_map == 0 || count_map == -1) cout << "Не добавлено" << endl;
 		fin.ignore(strlen("\n"));
+		for (int i = 0; i < count_map; i++)
+		{
+			fin.ignore(Agents[2].size());
+			fin >> agent.id_agent;
+			if (agents.find(agent.id_agent) != agents.end())
+			{
+				cout << "Номер уже существует" << endl;
+				continue;
+			}
+			else
+			{
+				cout << Agents[2] << agent.id_agent << endl;
+			}
+			fin.ignore(strlen("\n"));
+			
 
-		fin.ignore(Agents[3].size());
-		fin >> agent.name_agent;
-		fin.ignore(strlen("\n"));
+			fin.ignore(Agents[3].size());
+			fin >> agent.name_agent;
+			fin.ignore(strlen("\n"));
+			cout << Agents[3] << agent.name_agent << endl;
 
+			inputAgent(agent);
+			cout << " - Добавлено\n";
+		}
+	}
+	else
+	{
+		cout << "Файл не загружен" << endl;
 	}
 }
 

@@ -1,4 +1,4 @@
 ﻿  AutoApp.cpp
   AssemblyInfo.obj : /DEBUG:FASTLINK не поддерживается, если присутствует управляемый код; выполняется перезапуск компоновки с /DEBUG:FULL
-  AutoApp.vcxproj -> C:\Users\admin\Downloads\AutoApp\Debug\AutoApp.exe
-  AutoApp.vcxproj -> C:\Users\admin\Downloads\AutoApp\Debug\AutoApp.pdb (Partial PDB)
+  AutoApp.vcxproj -> J:\Education\work 11.2016\AutoApp\Debug\AutoApp.exe
+  AutoApp.vcxproj -> J:\Education\work 11.2016\AutoApp\Debug\AutoApp.pdb (Partial PDB)
