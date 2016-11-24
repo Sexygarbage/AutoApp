@@ -12,6 +12,8 @@ using namespace std;
 using namespace System;
 //Отключение предупреждениея для записи считывания из файла
 #pragma warning(disable:4996)
+
+#pragma region structs
 struct Fuel //Топливо
 {
 public :
@@ -49,9 +51,14 @@ public:
 	string name_agent; //Имя контрагента, 3
 };
 
+#pragma endregion structs
+
 class AutoClass
 {
 public:
+
+#pragma region constants
+
 	const string* Fuels = new string [6]{
 		"fuel.txt","Count map: ","Fuel: ","Cost: ","Name: ","Amount: "
 	};//"fuel.txt","Count map: ","Fuel: ","Cost: ","Name: ","Amount: "
@@ -72,11 +79,15 @@ public:
 		"agent.txt","Count map: ","Agent: ","Name: "
 	};//"agent.txt","Count map: ","Agent: ","Name: "
 
-	map <int,Fuel> fuels;
+#pragma endregion constants
+
+	map <int,Fuel> fuels; //не зависимые
 	map <int,Selling> sellings; //зависимые
-	map <int,Vendor> vendors; 
-	map <int,Purchase> purchases; //не зависимые
-	map <int,Agent> agents;
+	map <int,Vendor> vendors; //не зависимые
+	map <int,Purchase> purchases; //зависимые
+	map <int,Agent> agents; //не зависимые
+
+#pragma region prototype
 		
 	void inputFuel(Fuel fuel);//Ввод в map одного элемента
 	void inputSelling(Selling selling);
@@ -135,85 +146,15 @@ public:
 	void writeAgents();
 
 	void writeAll();
-};
 
-//Перегрузка вывода на экран структуры-сущности топлива, позже будет заменена более простым вариантом вывода.
-/*std::ostream& operator<<(std::ostream& fout, const Fuel& fuel)
-{
-	//for (auto& el : )
-	{
-		fout << "Fuel: " << fuel.id_fuel << endl;
-		fout << "Cost: " << fuel.cost << endl;
-		fout << "Name: " << fuel.name << endl;
-		fout << "Amount: " << fuel.amount << endl;
-	}
-	return fout;
-}*/
+#pragma endregion prototype
+};
 
 //Точка входа в программу
 int main()
 {
 	setlocale(LC_ALL, "RUS");
-	/*
-	//создание списка map c сущностями топлива
-	std::map <int, Fuel> fuels;
 	
-	
-	//создание структуры fuel
-	Fuel *fuel = new Fuel;
-	fuel->id_fuel = 1;
-	fuel->name = "Lookoil";
-	fuel->cost = 15.8;
-	fuel->amount = 20;
-
-	//запись в map с id_fuel объекта структуры fuel
-	fuels[fuel->id_fuel] = *fuel;
-
-	//std::cout << fuel;
-	//Вывод map по id->fuel с перегрузкой вывода
-	std::cout << fuels[fuel->id_fuel];
-	
-	//запись 1 элемента топлива в файл
-	//FILE *f;
-	//f = fopen("fuel.txt", "w");
-	ofstream fout("fuel.txt");
-	fout << "Count map: " << fuels.size() << endl;
-	fout << "Fuel: " << fuel->id_fuel << endl;
-	fout << "Cost: " << fuel->cost << endl;
-	fout << "Name: " << fuel->name << endl;
-	fout << "Amount: " << fuel->amount << endl;
-
-	fout << "Fuel: " << fuel->id_fuel << endl;
-	fout << "Cost: " << fuel->cost << endl;
-	fout << "Name: " << fuel->name << endl;
-	fout << "Amount: " << fuel->amount << endl;
-
-	//fclose(f);
-	int count_map;
-	//чтение из файла в структуру(сущность fuel)
-	//FILE *fread;
-	//fread = fopen("fuel.txt", "r");
-	ifstream fin("fuel.txt");
-	fin.ignore(strlen("Count map: "));
-	fin >> count_map;
-	fin.ignore(strlen("\n"));
-	fin.ignore(strlen("Fuel: "));
-	fin >> fuel->id_fuel;
-	fin.ignore(strlen("\n"));
-	fin.ignore(strlen("Cost: ")); 
-	fin >> fuel->cost; 
-	fin.ignore(strlen("\n"));
-	fin.ignore(strlen("Name: "));
-	fin >> fuel->name; 
-	fin.ignore(strlen("\n"));
-	fin.ignore(strlen("Amount: "));
-	fin >> fuel->amount;
-	fin.ignore(strlen("\n"));
-	//fclose(fread);
-	
-	//Вывод вида топлива на экран
-	std::cout << fuel->name<<endl;
-	*/
 	AutoClass *autoObjs = new AutoClass[5];
 	AutoClass currAutoObj;
 	currAutoObj=autoObjs[0];
@@ -222,6 +163,7 @@ int main()
 	int choose = 0;
 	do
 	{
+#pragma region 1_level
 		std::cout << "1 - Выбор элемента из массива, с которым планируется работать.\n";
 		std::cout << "2 - Cписок действий\n";
 		std::cout << "0 - Завершение программы\n";
@@ -243,6 +185,7 @@ int main()
 			{
 				do
 				{
+#pragma region 2_level
 					std::cout << "1 - Загрузить из файла\n";
 					std::cout << "2 - Топливо - Сущность 1\n";
 					std::cout << "3 - Учет продаж - Сущность 2\n";
@@ -260,6 +203,7 @@ int main()
 					if (choose == 2 || choose == 3 || choose == 4 || choose == 5 || choose == 6) {
 						int chooseEntity = choose;
 						do {
+#pragma region 3_level
 							std::cout << "1 - добавить\n";
 							std::cout << "2 - изменить\n";
 							std::cout << "3 - удалить\n";
@@ -337,6 +281,7 @@ int main()
 								if (chooseEntity == 6)
 									currAutoObj.outputAllAgent();
 							}
+#pragma endregion 3_level
 						} while (choose != 5);
 					}					
 					if (choose == 7)
@@ -345,9 +290,10 @@ int main()
 						0;
 					if (choose == 9)
 						currAutoObj.writeAll();
+#pragma endregion 2_level
 				} while (choose != 10);
 			} 
-		
+#pragma endregion 1_level		
 	} while (choose != 0);
 	std::cout << "Нажмите любую клавишу для выхода\n";
 	getch();
@@ -400,12 +346,15 @@ void AutoClass::inputAllAgent()
 {
 }
 
+#pragma region add
+
 void AutoClass::addFuel(Fuel fuel)
 {
 	std::cout << "Введите Название вида топлива" << std::endl;
 	std::cin >> fuel.name;
 	std::cout << "Введите цену топлива" << std::endl;
 	std::cin >> fuel.cost;
+
 	std::cout << "Введите количество вида топлива" << std::endl;
 	std::cin >> fuel.amount;
 	inputFuel(fuel);
@@ -413,13 +362,39 @@ void AutoClass::addFuel(Fuel fuel)
 
 void AutoClass::addSelling(Selling selling)
 {
+	bool verify = true;
+	string verifyString = "";
 	std::cout << "Введите Номер вида топлива" << std::endl;
 	std::cin >> selling.id_fuel;
+	if (!std::cin)
+	{
+		verify = false;
+		std::cout << "Введено не целое число\n";
+		std::cin.clear();
+		std::cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
+	}
 	std::cout << "Введите номер продавца" << std::endl;
 	std::cin >> selling.id_vendor;
+	if (!std::cin)
+	{
+		verify = false;
+		std::cout << "Введено не целое число\n";
+		std::cin.clear();
+		std::cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
+	}
+	
+	
 	std::cout << "Введите количество топлива" << std::endl;
 	std::cin >> selling.amount;
-	inputSelling(selling);
+	if (!std::cin)
+	{
+		verify = false;
+		std::cout << "Введено не вещественное число\n";
+		std::cin.clear();
+		std::cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
+	}
+	if(verify)
+		inputSelling(selling);
 }
 
 void AutoClass::addVendor(Vendor vendor)
@@ -431,13 +406,36 @@ void AutoClass::addVendor(Vendor vendor)
 
 void AutoClass::addPurchase(Purchase purchase)
 {
+	bool verify = true;
 	std::cout << "Введите Номер агента" << std::endl;
 	std::cin >> purchase.id_agent;
+	if (!std::cin)
+	{
+		verify = false;
+		std::cout << "Введено не целое число\n";
+		std::cin.clear();
+		std::cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
+	}
 	std::cout << "Введите номер вида топлива" << std::endl;
 	std::cin >> purchase.id_fuel;
+	if (!std::cin)
+	{
+		verify = false;
+		std::cout << "Введено не целое число\n";
+		std::cin.clear();
+		std::cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
+	}
 	std::cout << "Введите количество топлива" << std::endl;
 	std::cin >> purchase.amount;
-	inputPurchase(purchase);
+	if (!std::cin)
+	{
+		verify = false;
+		std::cout << "Введено не вещественное число\n";
+		std::cin.clear();
+		std::cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
+	}
+	if(verify)
+		inputPurchase(purchase);
 }
 
 void AutoClass::addAgent(Agent agent)
@@ -446,6 +444,10 @@ void AutoClass::addAgent(Agent agent)
 	std::cin >> agent.name_agent;	
 	inputAgent(agent);
 }
+
+#pragma endregion add
+
+#pragma region update
 
 void AutoClass::updateFuel(Fuel fuel)
 {
@@ -471,6 +473,10 @@ void AutoClass::updateAgent(Agent agent)
 {
 	addAgent(agent);
 }
+
+#pragma endregion update
+
+#pragma region delete
 
 void AutoClass::deleteFuel(Fuel fuel)
 {
@@ -558,6 +564,10 @@ void AutoClass::deleteAgent(Agent agent)
 	else
 		std::cout << "Удалите номер из зависимой сущности, Закупки топлива!\n";
 }
+
+#pragma endregion delete
+
+#pragma region output
 
 void AutoClass::outputFuel(Fuel fuel)
 { 
@@ -651,14 +661,9 @@ void AutoClass::outputAllAgent()
 	}
 }
 
-void AutoClass::readFromAll()
-{
-	readFromFuels();
-	readFromSelling();
-	readFromVendors();
-	readFromPurchases();
-	readFromAgents();
-}
+#pragma endregion output
+
+#pragma region write
 
 void AutoClass::writeFuels()
 {
@@ -731,6 +736,19 @@ void AutoClass::writeAll()
 	writeAgents();
 }
 
+#pragma endregion write
+
+#pragma region readFromStructure
+
+void AutoClass::readFromAll()
+{
+	readFromFuels();
+	readFromSelling();
+	readFromVendors();
+	readFromPurchases();
+	readFromAgents();
+}
+
 void AutoClass::readFromFuels()
 {
 	Fuel fuel;
@@ -763,8 +781,6 @@ void AutoClass::readFromFuels()
 		fuels[fuel.id_fuel] = fuel;
 	}
 }
-
-
 
 void AutoClass::readFromSelling()
 {
@@ -865,6 +881,8 @@ void AutoClass::readFromAgents()
 
 	}
 }
+
+#pragma endregion readFromStructure
 
 void checkDouble()
 {
