@@ -93,6 +93,7 @@ public:
 #pragma region prototype
 	
 	bool dirExists(string dirName_in);
+	bool fileExists(string fileName_in);
 	
 
 	void inputFuel(Fuel fuel);//Ввод в map одного элемента
@@ -131,14 +132,6 @@ public:
 	void outputAllPurchase();
 	void outputAllAgent();
 
-	void readFromFuels();//Чтение из файла в список
-	void readFromSelling();
-	void readFromVendors();
-	void readFromPurchases();
-	void readFromAgents();
-
-	void readFromAll();
-
 	void readFromFuels(string path);//Чтение из файла в список по указанному пути
 	void readFromSelling(string path);
 	void readFromVendors(string path);
@@ -147,14 +140,7 @@ public:
 
 	void readFromAll(string path);
 
-	void writeFuels();//Запись из списка в файл
-	void writeSelling();
-	void writeVendors();
-	void writePurchases();
-	void writeAgents();
-
-	void writeAll();
-
+	
 	void writeFuels(string path);//Запись из списка в файл по указанному пути
 	void writeSelling(string path);
 	void writeVendors(string path);
@@ -407,8 +393,6 @@ int main()
     return 0;
 }
 
-
-
 bool AutoClass::dirExists(string dirName_in)
 {	
 		DWORD ftyp = GetFileAttributesA(dirName_in.c_str());
@@ -420,6 +404,20 @@ bool AutoClass::dirExists(string dirName_in)
 
 		return false;    // директория не существует!
 }
+
+bool AutoClass::fileExists(string dirName_in)
+{
+	DWORD ftyp = GetFileAttributesA(dirName_in.c_str());
+	if (ftyp == INVALID_FILE_ATTRIBUTES)
+		return false;  //что-то не верно с путём
+
+	if (ftyp & FILE_ATTRIBUTE_NORMAL)
+		return true;   // директория существует
+
+	return false;    // директория не существует!
+}
+
+#pragma region input
 
 void AutoClass::inputFuel(Fuel fuel)
 {
@@ -447,6 +445,7 @@ void AutoClass::inputAgent(Agent agent)
 	agents[agent.id_agent] = agent;
 }
 
+#pragma endregion input
 
 #pragma region add
 
@@ -658,12 +657,43 @@ void AutoClass::addAgent(Agent agent)
 
 void AutoClass::updateFuel(Fuel fuel)
 {
-	addFuel(fuel);
+	if (fuels.find(fuel.id_fuel) != fuels.end())
+	{
+		bool verify = true;
+		std::cout << "Введите Название вида топлива" << std::endl;
+		std::cin >> fuel.name;
+		std::cout << "Введите цену топлива" << std::endl;
+		std::cin >> fuel.cost;
+		if (!std::cin)
+		{
+			verify = false;
+			std::cout << "Введено не вещественное число\n";
+			std::cin.clear();
+			std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+		}
+		std::cout << "Введите количество вида топлива" << std::endl;
+		std::cin >> fuel.amount;
+		if (!std::cin)
+		{
+			verify = false;
+			std::cout << "Введено не вещественное число\n";
+			std::cin.clear();
+			std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+		}
+		if (verify) {
+			inputFuel(fuel);
+			std::cout << "Обновлено\n";
+		}
+		else
+			std::cout << "Введены неверные данные, сущность не обновлена!" << std::endl;
+	}
+	else
+		cout << "Номер не существует";
 }
 
 void AutoClass::updateSelling(Selling selling)
 {
-	addSelling(selling);
+	addSelling(selling);//TODO: do like updateFuel
 }
 
 void AutoClass::updateVendor(Vendor vendor)
@@ -921,79 +951,6 @@ void AutoClass::outputAllAgent()
 
 #pragma region write
 
-void AutoClass::writeFuels()
-{
-	ofstream fout(Fuels[0]);
-	fout << Fuels[1] << fuels.size() << endl;
-	for (std::map<int, Fuel>::iterator fuel = fuels.begin(); fuel != fuels.end(); ++fuel)
-	{
-		fout << Fuels[2] << fuel->second.id_fuel << endl;
-		fout << Fuels[3] << fuel->second.cost << endl;
-		fout << Fuels[4] << fuel->second.name << endl;
-		fout << Fuels[5] << fuel->second.amount << endl;
-	}
-	
-}
-
-void AutoClass::writeSelling()
-{
-	ofstream fout(Sellings[0]);
-	fout << Sellings[1] << sellings.size() << endl;
-	for (std::map<int, Selling>::iterator selling = sellings.begin(); selling != sellings.end(); ++selling)
-	{
-		fout << Sellings[2] << selling->second.id_order << endl;
-		fout << Sellings[3] << selling->second.id_fuel << endl;
-		fout << Sellings[4] << selling->second.id_vendor << endl;
-		fout << Sellings[5] << selling->second.amount << endl;
-	}
-}
-
-void AutoClass::writeVendors()
-{
-	ofstream fout(Vendors[0]);
-	fout << Vendors[1] << vendors.size() << endl;
-	for (std::map<int, Vendor>::iterator vendor = vendors.begin(); vendor != vendors.end(); ++vendor)
-	{
-		fout << Vendors[2] << vendor->second.id_vendor << endl;
-		fout << Vendors[3] << vendor->second.name_vendor << endl;
-	}
-}
-
-void AutoClass::writePurchases()
-{
-	ofstream fout(Purchases[0]);
-	fout << Purchases[1] << purchases.size() << endl;
-	for (std::map<int, Purchase>::iterator purchase = purchases.begin(); purchase != purchases.end(); ++purchase)
-	{
-		fout << Purchases[2] << purchase->second.id_purchase << endl;
-		fout << Purchases[3] << purchase->second.id_agent << endl;
-		fout << Purchases[4] << purchase->second.id_fuel << endl;
-		fout << Purchases[5] << purchase->second.amount << endl;
-	}
-}
-
-void AutoClass::writeAgents()
-{
-	ofstream fout(Agents[0]);
-	fout << Agents[1] << agents.size() << endl;
-	for (std::map<int, Agent>::iterator agent = agents.begin(); agent != agents.end(); ++agent)
-	{
-		fout << Agents[2] << agent->second.id_agent << endl;
-		fout << Agents[3] << agent->second.name_agent << endl;		
-	}
-}
-
-void AutoClass::writeAll()
-{
-	
-	writeFuels();
-	writeSelling();
-	writeVendors();
-	writePurchases();
-	writeAgents();
-	cout << "Сущности сохранены\n";
-}
-
 void AutoClass::writeFuels(string path)
 {
 	ofstream fout(path + Fuels[0]);
@@ -1069,151 +1026,7 @@ void AutoClass::writeAll(string path)
 
 #pragma endregion write
 
-#pragma region readFromStructure
-
-void AutoClass::readFromAll()
-{
-	readFromFuels();
-	readFromVendors();	
-	readFromAgents();
-
-	readFromSelling();
-	readFromPurchases();
-	cout << "Сущности загружены\n";
-}
-
-void AutoClass::readFromFuels()
-{
-	Fuel fuel;
-	int count_map;
-	//чтение из файла в структуру(сущность fuel)
-	//FILE *fread;
-	//fread = fopen("fuel.txt", "r");
-	ifstream fin(Fuels[0]);
-	fin.ignore(Fuels[1].size());
-	fin >> count_map;
-	fin.ignore(strlen("\n"));
-	for (int i = 0; i < count_map; i++)
-	{
-		//fin.ignore(strlen("Fuel: "));
-		fin.ignore(Fuels[2].size());
-		fin >> fuel.id_fuel;
-		fin.ignore(strlen("\n"));
-		//fin.ignore(strlen("Cost: "));
-		fin.ignore(Fuels[3].size());
-		fin >> fuel.cost;
-		fin.ignore(strlen("\n"));
-		//fin.ignore(strlen("Name: "));
-		fin.ignore(Fuels[4].size());
-		fin >> fuel.name;
-		fin.ignore(strlen("\n"));
-		fin.ignore(Fuels[5].size());
-		//fin.ignore(strlen("Amount: "));
-		fin >> fuel.amount;
-		fin.ignore(strlen("\n"));
-		fuels[fuel.id_fuel] = fuel;
-	}
-}
-
-void AutoClass::readFromSelling()
-{
-	Selling selling;
-	int count_map;
-	ifstream fin(Sellings[0]);
-	fin.ignore(Sellings[1].size());
-	fin >> count_map;
-	fin.ignore(strlen("\n"));
-	for (int i = 0; i < count_map; i++)
-	{		
-		fin.ignore(Sellings[2].size());
-		fin >> selling.id_order;
-		fin.ignore(strlen("\n"));
-
-		fin.ignore(Sellings[3].size());
-		fin >> selling.id_fuel;
-		fin.ignore(strlen("\n"));
-
-		fin.ignore(Sellings[4].size());
-		fin >> selling.id_vendor;
-		fin.ignore(strlen("\n"));
-
-		fin.ignore(Sellings[5].size());
-		fin >> selling.amount;
-		fin.ignore(strlen("\n"));
-		sellings[selling.id_order] = selling;
-	}
-}
-
-void AutoClass::readFromVendors()
-{
-	Vendor vendor;
-	int count_map;
-	ifstream fin(Vendors[0]);
-	fin.ignore(Vendors[1].size());
-	fin >> count_map;
-	fin.ignore(strlen("\n"));
-	for (int i = 0; i < count_map; i++)
-	{
-		fin.ignore(Vendors[2].size());
-		fin >> vendor.id_vendor;
-		fin.ignore(strlen("\n"));
-
-		fin.ignore(Vendors[3].size());
-		fin >> vendor.name_vendor;
-		fin.ignore(strlen("\n"));
-
-	}
-}
-
-void AutoClass::readFromPurchases()
-{
-	Purchase purchase;
-	int count_map;
-	ifstream fin(Purchases[0]);
-	fin.ignore(Purchases[1].size());
-	fin >> count_map;
-	fin.ignore(strlen("\n"));
-	for (int i = 0; i < count_map; i++)
-	{
-		fin.ignore(Purchases[2].size());
-		fin >> purchase.id_purchase;
-		fin.ignore(strlen("\n"));
-
-		fin.ignore(Purchases[3].size());
-		fin >> purchase.id_agent;
-		fin.ignore(strlen("\n"));
-
-		fin.ignore(Purchases[4].size());
-		fin >> purchase.id_fuel;
-		fin.ignore(strlen("\n"));
-
-		fin.ignore(Purchases[5].size());
-		fin >> purchase.amount;
-		fin.ignore(strlen("\n"));
-		purchases[purchase.id_purchase] = purchase;
-	}
-}
-
-void AutoClass::readFromAgents()
-{
-	Agent agent;
-	int count_map;
-	ifstream fin(Agents[0]);
-	fin.ignore(Agents[1].size());
-	fin >> count_map;
-	fin.ignore(strlen("\n"));
-	for (int i = 0; i < count_map; i++)
-	{
-		fin.ignore(Agents[2].size());
-		fin >> agent.id_agent;
-		fin.ignore(strlen("\n"));
-
-		fin.ignore(Agents[3].size());
-		fin >> agent.name_agent;
-		fin.ignore(strlen("\n"));
-
-	}
-}
+#pragma region read
 
 void AutoClass::readFromAll(string path)
 {
@@ -1359,4 +1172,4 @@ void AutoClass::readFromAgents(string path)
 	}
 }
 
-#pragma endregion readFromStructure
+#pragma endregion read
