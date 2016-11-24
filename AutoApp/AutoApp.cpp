@@ -154,8 +154,8 @@ public:
 int main()
 {
 	setlocale(LC_ALL, "RUS");
-	
-	AutoClass *autoObjs = new AutoClass[5];
+	const int countObjs = 5;
+	AutoClass *autoObjs = new AutoClass[countObjs];
 	AutoClass currAutoObj;
 	currAutoObj=autoObjs[0];
 	//Заготовка меню для пункта 8 из общего задания
@@ -185,7 +185,7 @@ int main()
 					std::cin.clear();
 					std::cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
 				}
-				else if(elem < 1 || elem > 5)
+				else if(elem < 1 || elem > countObjs)
 					cout << "Вы ввели не верный элемент\n";
 				else
 				{
@@ -237,7 +237,7 @@ int main()
 							}
 							else if (choose == 1)
 							{
-								int id;
+								/*int id;
 								std::cout << "Введите номер добавляемой сущности" << endl;
 								std::cin >> id;
 								if (!std::cin)
@@ -245,19 +245,19 @@ int main()
 									std::cout << "Введено не целое число\n";
 									std::cin.clear();
 									std::cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
-								}
+								}*/
 								if (chooseEntity == 2)
 								{
-									currAutoObj.addFuel(Fuel{ id = id });
+									currAutoObj.addFuel(Fuel{ });
 								}
 								if (chooseEntity == 3)
-									currAutoObj.addSelling(Selling{ id = id });
+									currAutoObj.addSelling(Selling{  });
 								if (chooseEntity == 4)
-									currAutoObj.addVendor(Vendor{ id = id });
+									currAutoObj.addVendor(Vendor{  });
 								if (chooseEntity == 5)
-									currAutoObj.addPurchase(Purchase{ id = id });
+									currAutoObj.addPurchase(Purchase{  });
 								if (chooseEntity == 6)
-									currAutoObj.addAgent(Agent{ id = id });
+									currAutoObj.addAgent(Agent{  });
 							}
 							else if (choose == 2)
 							{
@@ -392,12 +392,27 @@ void AutoClass::inputAllAgent()
 
 void AutoClass::addFuel(Fuel fuel)
 {
+	fuel.id_fuel = 1;
+	for (std::map<int, Fuel>::iterator i = fuels.begin(); i != fuels.end(); ++i)
+	{
+		if (i->second.id_fuel == fuel.id_fuel)
+		{
+			fuel.id_fuel++;
+		}
+	}
+
 	bool verify = true;
 	std::cout << "Введите Название вида топлива" << std::endl;
 	std::cin >> fuel.name;
 	std::cout << "Введите цену топлива" << std::endl;
 	std::cin >> fuel.cost;
-
+	if (!std::cin)
+	{
+		verify = false;
+		std::cout << "Введено не вещественное число\n";
+		std::cin.clear();
+		std::cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
+	}
 	std::cout << "Введите количество вида топлива" << std::endl;
 	std::cin >> fuel.amount;
 	if (!std::cin)
@@ -415,6 +430,15 @@ void AutoClass::addFuel(Fuel fuel)
 
 void AutoClass::addSelling(Selling selling)
 {
+	selling.id_order = 1;
+	for (std::map<int, Selling>::iterator i = sellings.begin(); i != sellings.end(); ++i)
+	{
+		if (i->second.id_order == selling.id_order)
+		{
+			selling.id_order++;
+		}
+	}
+
 	bool verify = true;
 	string verifyString = "";
 	std::cout << "Введите Номер вида топлива" << std::endl;
@@ -454,6 +478,14 @@ void AutoClass::addSelling(Selling selling)
 
 void AutoClass::addVendor(Vendor vendor)
 {
+	vendor.id_vendor = 1;
+	for (std::map<int, Vendor>::iterator i = vendors.begin(); i != vendors.end(); ++i)
+	{
+		if (i->second.id_vendor == vendor.id_vendor)
+		{
+			vendor.id_vendor++;
+		}
+	}
 	std::cout << "Введите Имя продавца" << std::endl;
 	std::cin >> vendor.name_vendor;
 	inputVendor(vendor);
@@ -461,6 +493,14 @@ void AutoClass::addVendor(Vendor vendor)
 
 void AutoClass::addPurchase(Purchase purchase)
 {
+	purchase.id_purchase = 1;
+	for (std::map<int, Purchase>::iterator i = purchases.begin(); i != purchases.end(); ++i)
+	{
+		if (i->second.id_purchase == purchase.id_purchase)
+		{
+			purchase.id_purchase++;
+		}
+	}
 	bool verify = true;
 	std::cout << "Введите Номер агента" << std::endl;
 	std::cin >> purchase.id_agent;
@@ -497,6 +537,14 @@ void AutoClass::addPurchase(Purchase purchase)
 
 void AutoClass::addAgent(Agent agent)
 {
+	agent.id_agent = 1;
+	for (std::map<int, Agent>::iterator i = agents.begin(); i != agents.end(); ++i)
+	{
+		if (i->second.id_agent == agent.id_agent)
+		{
+			agent.id_agent++;
+		}
+	}
 	std::cout << "Введите Имя агента" << std::endl;
 	std::cin >> agent.name_agent;	
 	inputAgent(agent);
@@ -940,8 +988,3 @@ void AutoClass::readFromAgents()
 }
 
 #pragma endregion readFromStructure
-
-void checkDouble()
-{
-
-}
