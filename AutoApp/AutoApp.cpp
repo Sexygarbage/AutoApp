@@ -8,6 +8,9 @@
 #include <map>
 #include <conio.h>
 #include "AutoApp.h"
+#include <windows.h>
+#undef max  //Разрешение конфликтов std:: и windows.h
+
 using namespace std;
 using namespace System;
 //Отключение предупреждениея для записи считывания из файла
@@ -88,19 +91,16 @@ public:
 	map <int,Agent> agents; //не зависимые
 
 #pragma region prototype
-		
+	
+	bool dirExists(string dirName_in);
+	
+
 	void inputFuel(Fuel fuel);//Ввод в map одного элемента
 	void inputSelling(Selling selling);
 	void inputVendor(Vendor vendor);
 	void inputPurchase(Purchase purchase);
 	void inputAgent(Agent agent);
-
-	void inputAllFuel();//Ввод в map
-	void inputAllSelling();
-	void inputAllVendor();
-	void inputAllPurchase();
-	void inputAllAgent();
-
+	
 	void addFuel(Fuel fuel);//Добавление в map одного элемента
 	void addSelling(Selling selling);
 	void addVendor(Vendor vendor);
@@ -139,6 +139,14 @@ public:
 
 	void readFromAll();
 
+	void readFromFuels(string path);//Чтение из файла в список по указанному пути
+	void readFromSelling(string path);
+	void readFromVendors(string path);
+	void readFromPurchases(string path);
+	void readFromAgents(string path);
+
+	void readFromAll(string path);
+
 	void writeFuels();//Запись из списка в файл
 	void writeSelling();
 	void writeVendors();
@@ -146,6 +154,14 @@ public:
 	void writeAgents();
 
 	void writeAll();
+
+	void writeFuels(string path);//Запись из списка в файл по указанному пути
+	void writeSelling(string path);
+	void writeVendors(string path);
+	void writePurchases(string path);
+	void writeAgents(string path);
+
+	void writeAll(string path);
 
 #pragma endregion prototype
 };
@@ -173,9 +189,10 @@ int main()
 			{				
 				std::cout << "Введена не целое число\n";
 				std::cin.clear();
-				std::cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
+				std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 			}
-			if (choose == 1){
+			if (choose == 1)
+			{
 				cout << "Выберите один из 5(1-5) элемент с которым планируете работать\n";
 				int elem;
 				cin>>elem;
@@ -183,7 +200,7 @@ int main()
 				{
 					std::cout << "Введено не целое число\n";
 					std::cin.clear();
-					std::cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
+					std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 				}
 				else if(elem < 1 || elem > countObjs)
 					cout << "Вы ввели не верный элемент\n";
@@ -214,10 +231,37 @@ int main()
 					{
 						std::cout << "Введено не целое число\n";
 						std::cin.clear();
-						std::cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
+						std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 					}
 					else if (choose == 1)
-						currAutoObj.readFromAll();
+					{
+						cout << "1 - Ввести путь к файлам для загрузки\n";
+						cout << "2 - Не вводить вручную, выбрать путь по умолчанию\n";
+						std::cout << "Введите число, для выбора действия!\n";
+						cin >> choose;
+						if (!std::cin)
+						{
+							std::cout << "Введено не целое число\n";
+							std::cin.clear();
+							std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+						}
+						if (choose == 1)
+						{
+							string path = "";
+							cout << "Введите существующий путь к файлам, например: C:\\\\Program Files\\\\Microsoft\\\\" << endl;
+							std::cin >> path;
+
+							if (currAutoObj.dirExists(path)) {
+								currAutoObj.readFromAll(path);
+							}
+							else
+							{
+								cout << "Введеный путь не существует\n";
+							}
+						}
+						if (choose == 2)
+							currAutoObj.readFromAll("");
+					}
 					else if (choose == 2 || choose == 3 || choose == 4 || choose == 5 || choose == 6) {
 						int chooseEntity = choose;
 						do {
@@ -233,19 +277,10 @@ int main()
 							{
 								std::cout << "Введено не целое число\n";
 								std::cin.clear();
-								std::cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
+								std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 							}
 							else if (choose == 1)
-							{
-								/*int id;
-								std::cout << "Введите номер добавляемой сущности" << endl;
-								std::cin >> id;
-								if (!std::cin)
-								{
-									std::cout << "Введено не целое число\n";
-									std::cin.clear();
-									std::cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
-								}*/
+							{								
 								if (chooseEntity == 2)
 								{
 									currAutoObj.addFuel(Fuel{ });
@@ -268,7 +303,7 @@ int main()
 								{
 									std::cout << "Введено не целое число\n";
 									std::cin.clear();
-									std::cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
+									std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 								}
 								if (chooseEntity == 2)
 								{
@@ -292,7 +327,7 @@ int main()
 								{
 									std::cout << "Введено не целое число\n";
 									std::cin.clear();
-									std::cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
+									std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 								}
 								if (chooseEntity == 2)
 								{
@@ -327,11 +362,41 @@ int main()
 						} while (choose != 5);
 					}					
 					else if (choose == 7)
-						0;
+						0;//TODO: do
 					else if (choose == 8)
-						0;
+						0;//TODO:do
 					else if (choose == 9)
-						currAutoObj.writeAll();
+					{
+						
+						
+						cout << "1 - Ввести путь к файлам для сохранения\n";
+						cout << "2 - Не вводить вручную, выбрать путь по умолчанию\n";						
+						std::cout << "Введите число, для выбора действия!\n";
+						cin >> choose;
+						if (!std::cin)
+						{
+							std::cout << "Введено не целое число\n";
+							std::cin.clear();
+							std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+						}
+						if (choose == 1)
+						{
+							string path = "";
+							cout << "Введите существующий путь к файлам, например: C:\\\\Program Files\\\\Microsoft\\\\" << endl;
+							std::cin >> path;
+
+							if (currAutoObj.dirExists(path)) { 
+								currAutoObj.writeAll(path);
+							}
+							else
+							{
+								cout << "Введеный путь не существует\n";
+							}
+						}
+						if (choose == 2)
+							currAutoObj.writeAll("");
+
+					}
 #pragma endregion 2_level
 				} while (choose != 10);
 			} 
@@ -340,6 +405,20 @@ int main()
 	std::cout << "Нажмите любую клавишу для выхода\n";
 	getch();
     return 0;
+}
+
+
+
+bool AutoClass::dirExists(string dirName_in)
+{	
+		DWORD ftyp = GetFileAttributesA(dirName_in.c_str());
+		if (ftyp == INVALID_FILE_ATTRIBUTES)
+			return false;  //что-то не верно с путём
+
+		if (ftyp & FILE_ATTRIBUTE_DIRECTORY)
+			return true;   // директория существует
+
+		return false;    // директория не существует!
 }
 
 void AutoClass::inputFuel(Fuel fuel)
@@ -368,25 +447,6 @@ void AutoClass::inputAgent(Agent agent)
 	agents[agent.id_agent] = agent;
 }
 
-void AutoClass::inputAllFuel()
-{
-}
-
-void AutoClass::inputAllSelling()
-{
-}
-
-void AutoClass::inputAllVendor()
-{
-}
-
-void AutoClass::inputAllPurchase()
-{
-}
-
-void AutoClass::inputAllAgent()
-{
-}
 
 #pragma region add
 
@@ -411,7 +471,7 @@ void AutoClass::addFuel(Fuel fuel)
 		verify = false;
 		std::cout << "Введено не вещественное число\n";
 		std::cin.clear();
-		std::cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
+		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 	}
 	std::cout << "Введите количество вида топлива" << std::endl;
 	std::cin >> fuel.amount;
@@ -420,7 +480,7 @@ void AutoClass::addFuel(Fuel fuel)
 		verify = false;
 		std::cout << "Введено не вещественное число\n";
 		std::cin.clear();
-		std::cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
+		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 	}
 	if (verify) {
 		inputFuel(fuel);
@@ -450,7 +510,7 @@ void AutoClass::addSelling(Selling selling)
 		verify = false;
 		std::cout << "Введено не целое число\n";
 		std::cin.clear();
-		std::cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
+		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 	}
 	std::cout << "Введите номер продавца" << std::endl;
 	std::cin >> selling.id_vendor;
@@ -459,7 +519,7 @@ void AutoClass::addSelling(Selling selling)
 		verify = false;
 		std::cout << "Введено не целое число\n";
 		std::cin.clear();
-		std::cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
+		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 	}
 	
 	
@@ -470,7 +530,7 @@ void AutoClass::addSelling(Selling selling)
 		verify = false;
 		std::cout << "Введено не вещественное число\n";
 		std::cin.clear();
-		std::cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
+		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 	}
 	if (verify)
 	{
@@ -515,7 +575,7 @@ void AutoClass::addPurchase(Purchase purchase)
 		verify = false;
 		std::cout << "Введено не целое число\n";
 		std::cin.clear();
-		std::cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
+		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 	}
 	else
 	{
@@ -538,7 +598,7 @@ void AutoClass::addPurchase(Purchase purchase)
 		verify = false;
 		std::cout << "Введено не целое число\n";
 		std::cin.clear();
-		std::cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
+		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 	}
 	else
 	{
@@ -560,7 +620,7 @@ void AutoClass::addPurchase(Purchase purchase)
 		verify = false;
 		std::cout << "Введено не вещественное число\n";
 		std::cin.clear();
-		std::cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
+		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 	}
 	else if (purchase.amount < 0)
 	{
@@ -627,33 +687,37 @@ void AutoClass::updateAgent(Agent agent)
 
 void AutoClass::deleteFuel(Fuel fuel)
 {
-
-
-	bool exist = false;
-
-	for (std::map<int, Selling>::iterator selling = sellings.begin(); selling != sellings.end(); ++selling)
+	if (fuels.find(fuel.id_fuel) != fuels.end())
 	{
-		if (selling->second.id_fuel == fuel.id_fuel)
+
+		bool exist = false;
+
+		for (std::map<int, Selling>::iterator selling = sellings.begin(); selling != sellings.end(); ++selling)
 		{
-			exist = true;
+			if (selling->second.id_fuel == fuel.id_fuel)
+			{
+				exist = true;
+			}
 		}
-	}
 
-	for (std::map<int, Purchase>::iterator purchase = purchases.begin(); purchase != purchases.end(); ++purchase)
-	{
-		if (purchase->second.id_fuel == fuel.id_fuel)
+		for (std::map<int, Purchase>::iterator purchase = purchases.begin(); purchase != purchases.end(); ++purchase)
 		{
-			exist = true;
+			if (purchase->second.id_fuel == fuel.id_fuel)
+			{
+				exist = true;
+			}
 		}
-	}
 
-	if (!exist)
-	{
-		fuels.erase(fuel.id_fuel);
-		std::cout << "Успешно удалено!" << std::endl;
+		if (!exist)
+		{
+			fuels.erase(fuel.id_fuel);
+			std::cout << "Успешно удалено!" << std::endl;
+		}
+		else
+			std::cout << "Удалите номер из зависимых сущностей!\n";
 	}
 	else
-		std::cout << "Удалите номер из зависимых сущностей!\n";
+		std::cout << "Номер не существует\n";
 }
 
 void AutoClass::deleteSelling(Selling selling)
@@ -921,11 +985,86 @@ void AutoClass::writeAgents()
 
 void AutoClass::writeAll()
 {
+	
 	writeFuels();
 	writeSelling();
 	writeVendors();
 	writePurchases();
 	writeAgents();
+	cout << "Сущности сохранены\n";
+}
+
+void AutoClass::writeFuels(string path)
+{
+	ofstream fout(path + Fuels[0]);
+	fout << Fuels[1] << fuels.size() << endl;
+	for (std::map<int, Fuel>::iterator fuel = fuels.begin(); fuel != fuels.end(); ++fuel)
+	{
+		fout << Fuels[2] << fuel->second.id_fuel << endl;
+		fout << Fuels[3] << fuel->second.cost << endl;
+		fout << Fuels[4] << fuel->second.name << endl;
+		fout << Fuels[5] << fuel->second.amount << endl;
+	}
+
+}
+
+void AutoClass::writeSelling(string path)
+{
+	ofstream fout(path + Sellings[0]);
+	fout << Sellings[1] << sellings.size() << endl;
+	for (std::map<int, Selling>::iterator selling = sellings.begin(); selling != sellings.end(); ++selling)
+	{
+		fout << Sellings[2] << selling->second.id_order << endl;
+		fout << Sellings[3] << selling->second.id_fuel << endl;
+		fout << Sellings[4] << selling->second.id_vendor << endl;
+		fout << Sellings[5] << selling->second.amount << endl;
+	}
+}
+
+void AutoClass::writeVendors(string path)
+{
+	ofstream fout(path + Vendors[0]);
+	fout << Vendors[1] << vendors.size() << endl;
+	for (std::map<int, Vendor>::iterator vendor = vendors.begin(); vendor != vendors.end(); ++vendor)
+	{
+		fout << Vendors[2] << vendor->second.id_vendor << endl;
+		fout << Vendors[3] << vendor->second.name_vendor << endl;
+	}
+}
+
+void AutoClass::writePurchases(string path)
+{
+	ofstream fout(path + Purchases[0]);
+	fout << Purchases[1] << purchases.size() << endl;
+	for (std::map<int, Purchase>::iterator purchase = purchases.begin(); purchase != purchases.end(); ++purchase)
+	{
+		fout << Purchases[2] << purchase->second.id_purchase << endl;
+		fout << Purchases[3] << purchase->second.id_agent << endl;
+		fout << Purchases[4] << purchase->second.id_fuel << endl;
+		fout << Purchases[5] << purchase->second.amount << endl;
+	}
+}
+
+void AutoClass::writeAgents(string path)
+{
+	ofstream fout(path + Agents[0]);
+	fout << Agents[1] << agents.size() << endl;
+	for (std::map<int, Agent>::iterator agent = agents.begin(); agent != agents.end(); ++agent)
+	{
+		fout << Agents[2] << agent->second.id_agent << endl;
+		fout << Agents[3] << agent->second.name_agent << endl;
+	}
+}
+
+void AutoClass::writeAll(string path)
+{
+
+	writeFuels(path);
+	writeSelling(path);
+	writeVendors(path);
+	writePurchases(path);
+	writeAgents(path);
+	cout << "Сущности сохранены\n";
 }
 
 #pragma endregion write
@@ -935,10 +1074,12 @@ void AutoClass::writeAll()
 void AutoClass::readFromAll()
 {
 	readFromFuels();
-	readFromSelling();
-	readFromVendors();
-	readFromPurchases();
+	readFromVendors();	
 	readFromAgents();
+
+	readFromSelling();
+	readFromPurchases();
+	cout << "Сущности загружены\n";
 }
 
 void AutoClass::readFromFuels()
@@ -1058,6 +1199,150 @@ void AutoClass::readFromAgents()
 	Agent agent;
 	int count_map;
 	ifstream fin(Agents[0]);
+	fin.ignore(Agents[1].size());
+	fin >> count_map;
+	fin.ignore(strlen("\n"));
+	for (int i = 0; i < count_map; i++)
+	{
+		fin.ignore(Agents[2].size());
+		fin >> agent.id_agent;
+		fin.ignore(strlen("\n"));
+
+		fin.ignore(Agents[3].size());
+		fin >> agent.name_agent;
+		fin.ignore(strlen("\n"));
+
+	}
+}
+
+void AutoClass::readFromAll(string path)
+{
+	readFromFuels(path);
+	readFromVendors(path);
+	readFromAgents(path);
+
+	readFromSelling(path);
+	readFromPurchases(path);
+	cout << "Сущности загружены\n";
+}
+
+void AutoClass::readFromFuels(string path)
+{
+	Fuel fuel;
+	int count_map;
+	//чтение из файла в структуру(сущность fuel)
+	//FILE *fread;
+	//fread = fopen("fuel.txt", "r");
+	ifstream fin(path + Fuels[0]);
+	fin.ignore(Fuels[1].size());
+	fin >> count_map;
+	fin.ignore(strlen("\n"));
+	for (int i = 0; i < count_map; i++)
+	{
+		//fin.ignore(strlen("Fuel: "));
+		fin.ignore(Fuels[2].size());
+		fin >> fuel.id_fuel;
+		fin.ignore(strlen("\n"));
+		//fin.ignore(strlen("Cost: "));
+		fin.ignore(Fuels[3].size());
+		fin >> fuel.cost;
+		fin.ignore(strlen("\n"));
+		//fin.ignore(strlen("Name: "));
+		fin.ignore(Fuels[4].size());
+		fin >> fuel.name;
+		fin.ignore(strlen("\n"));
+		fin.ignore(Fuels[5].size());
+		//fin.ignore(strlen("Amount: "));
+		fin >> fuel.amount;
+		fin.ignore(strlen("\n"));
+		fuels[fuel.id_fuel] = fuel;
+	}
+}
+
+void AutoClass::readFromSelling(string path)
+{
+	Selling selling;
+	int count_map;
+	ifstream fin(path + Sellings[0]);
+	fin.ignore(Sellings[1].size());
+	fin >> count_map;
+	fin.ignore(strlen("\n"));
+	for (int i = 0; i < count_map; i++)
+	{
+		fin.ignore(Sellings[2].size());
+		fin >> selling.id_order;
+		fin.ignore(strlen("\n"));
+
+		fin.ignore(Sellings[3].size());
+		fin >> selling.id_fuel;
+		fin.ignore(strlen("\n"));
+
+		fin.ignore(Sellings[4].size());
+		fin >> selling.id_vendor;
+		fin.ignore(strlen("\n"));
+
+		fin.ignore(Sellings[5].size());
+		fin >> selling.amount;
+		fin.ignore(strlen("\n"));
+		sellings[selling.id_order] = selling;
+	}
+}
+
+void AutoClass::readFromVendors(string path)
+{
+	Vendor vendor;
+	int count_map;
+	ifstream fin(path + Vendors[0]);
+	fin.ignore(Vendors[1].size());
+	fin >> count_map;
+	fin.ignore(strlen("\n"));
+	for (int i = 0; i < count_map; i++)
+	{
+		fin.ignore(Vendors[2].size());
+		fin >> vendor.id_vendor;
+		fin.ignore(strlen("\n"));
+
+		fin.ignore(Vendors[3].size());
+		fin >> vendor.name_vendor;
+		fin.ignore(strlen("\n"));
+
+	}
+}
+
+void AutoClass::readFromPurchases(string path)
+{
+	Purchase purchase;
+	int count_map;
+	ifstream fin(path + Purchases[0]);
+	fin.ignore(Purchases[1].size());
+	fin >> count_map;
+	fin.ignore(strlen("\n"));
+	for (int i = 0; i < count_map; i++)
+	{
+		fin.ignore(Purchases[2].size());
+		fin >> purchase.id_purchase;
+		fin.ignore(strlen("\n"));
+
+		fin.ignore(Purchases[3].size());
+		fin >> purchase.id_agent;
+		fin.ignore(strlen("\n"));
+
+		fin.ignore(Purchases[4].size());
+		fin >> purchase.id_fuel;
+		fin.ignore(strlen("\n"));
+
+		fin.ignore(Purchases[5].size());
+		fin >> purchase.amount;
+		fin.ignore(strlen("\n"));
+		purchases[purchase.id_purchase] = purchase;
+	}
+}
+
+void AutoClass::readFromAgents(string path)
+{
+	Agent agent;
+	int count_map;
+	ifstream fin(path + Agents[0]);
 	fin.ignore(Agents[1].size());
 	fin >> count_map;
 	fin.ignore(strlen("\n"));
