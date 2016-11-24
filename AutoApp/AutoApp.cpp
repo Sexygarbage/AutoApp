@@ -169,11 +169,23 @@ int main()
 		std::cout << "0 - Завершение программы\n";
 		std::cout << "Введите число, для выбора действия!\n";
 			cin >> choose;
+			if (!std::cin)
+			{				
+				std::cout << "Введена не целое число\n";
+				std::cin.clear();
+				std::cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
+			}
 			if (choose == 1){
 				cout << "Выберите один из 5(1-5) элемент с которым планируете работать\n";
 				int elem;
 				cin>>elem;
-				if(elem < 1 || elem > 5)
+				if (!std::cin)
+				{
+					std::cout << "Введено не целое число\n";
+					std::cin.clear();
+					std::cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
+				}
+				else if(elem < 1 || elem > 5)
 					cout << "Вы ввели не верный элемент\n";
 				else
 				{
@@ -198,9 +210,15 @@ int main()
 					std::cout << "10 - Перейти к другому элементу(вернутся к первому уровню).\n";
 					std::cout << "Введите число, для выбора действия!\n";
 					cin >> choose;
-					if (choose == 1)
+					if (!std::cin)
+					{
+						std::cout << "Введено не целое число\n";
+						std::cin.clear();
+						std::cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
+					}
+					else if (choose == 1)
 						currAutoObj.readFromAll();
-					if (choose == 2 || choose == 3 || choose == 4 || choose == 5 || choose == 6) {
+					else if (choose == 2 || choose == 3 || choose == 4 || choose == 5 || choose == 6) {
 						int chooseEntity = choose;
 						do {
 #pragma region 3_level
@@ -211,11 +229,23 @@ int main()
 							std::cout << "5 - вернутся к списку действий\n";
 							std::cout << "Введите число, для выбора действия!\n";
 							cin >> choose;
-							if (choose == 1)
+							if (!std::cin)
+							{
+								std::cout << "Введено не целое число\n";
+								std::cin.clear();
+								std::cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
+							}
+							else if (choose == 1)
 							{
 								int id;
 								std::cout << "Введите номер добавляемой сущности" << endl;
 								std::cin >> id;
+								if (!std::cin)
+								{
+									std::cout << "Введено не целое число\n";
+									std::cin.clear();
+									std::cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
+								}
 								if (chooseEntity == 2)
 								{
 									currAutoObj.addFuel(Fuel{ id = id });
@@ -229,11 +259,17 @@ int main()
 								if (chooseEntity == 6)
 									currAutoObj.addAgent(Agent{ id = id });
 							}
-							if (choose == 2)
+							else if (choose == 2)
 							{
 								int id;
 								std::cout << "Введите номер обновляемой сущности" << endl;
 								std::cin >> id;
+								if (!std::cin)
+								{
+									std::cout << "Введено не целое число\n";
+									std::cin.clear();
+									std::cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
+								}
 								if (chooseEntity == 2)
 								{
 									currAutoObj.updateFuel(Fuel{ id = id });
@@ -247,11 +283,17 @@ int main()
 								if (chooseEntity == 6)
 									currAutoObj.updateAgent(Agent{ id = id });
 							}
-							if (choose == 3)
+							else if (choose == 3)
 							{
 								int id;
 								std::cout << "Введите номер удаляемой сущности" << endl;
 								std::cin >> id;
+								if (!std::cin)
+								{
+									std::cout << "Введено не целое число\n";
+									std::cin.clear();
+									std::cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
+								}
 								if (chooseEntity == 2)
 								{
 									currAutoObj.deleteFuel(Fuel{ id = id });
@@ -265,7 +307,7 @@ int main()
 								if (chooseEntity == 6)
 									currAutoObj.deleteAgent(Agent{ id = id });
 							}
-							if (choose == 4)
+							else if (choose == 4)
 							{
 								
 								if (chooseEntity == 2)
@@ -284,11 +326,11 @@ int main()
 #pragma endregion 3_level
 						} while (choose != 5);
 					}					
-					if (choose == 7)
+					else if (choose == 7)
 						0;
-					if (choose == 8)
+					else if (choose == 8)
 						0;
-					if (choose == 9)
+					else if (choose == 9)
 						currAutoObj.writeAll();
 #pragma endregion 2_level
 				} while (choose != 10);
