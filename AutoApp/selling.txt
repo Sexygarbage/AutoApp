@@ -2,4 +2,4 @@ Count map: 1
 Selling: 1
 id Fuel: 1
 id Vendor: 1
-Amount: 55
+Amount: 11

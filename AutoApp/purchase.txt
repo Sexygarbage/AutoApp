@@ -1,5 +1,1 @@
-Count map: 1
-Purchase: 1
-id Agent: 1
-id Fuel: 1
-Amount: 3
+Count map: 0

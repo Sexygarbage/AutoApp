@@ -94,8 +94,9 @@ public:
 #pragma region prototype
 	
 	bool dirExists(string dirName_in);
-	bool fileExists(string fileName_in);
 	
+	void report1();
+	void report2();
 
 	void inputFuel(Fuel fuel);//Ввод в map одного элемента
 	void inputSelling(Selling selling);
@@ -153,10 +154,26 @@ public:
 #pragma endregion prototype
 };
 
+//Исправляет ввод-вывод русских букв в консоли
+void russianWordFix()
+{
+	setlocale(LC_ALL, "Russian");
+	CONSOLE_FONT_INFOEX cfi;
+	cfi.cbSize = sizeof cfi;
+	cfi.nFont = 0;
+	cfi.dwFontSize.X = 0;
+	cfi.dwFontSize.Y = 18;
+	cfi.FontFamily = FF_DONTCARE;
+	cfi.FontWeight = FW_NORMAL;
+	wcscpy_s(cfi.FaceName, L"Consolas");
+	SetCurrentConsoleFontEx(GetStdHandle(STD_OUTPUT_HANDLE), FALSE, &cfi);
+	SetConsoleCP(1251); // Ввод с консоли в кодировке 1251
+	SetConsoleOutputCP(1251); // Вывод на консоль в кодировке 1251
+}
 //Точка входа в программу
 int main()
 {
-	setlocale(LC_ALL, "RUS");
+	russianWordFix();
 	const int countObjs = 5;
 	AutoClass *autoObjs = new AutoClass[countObjs];
 	AutoClass currAutoObj;
@@ -209,7 +226,7 @@ int main()
 					std::cout << "5 - Закупки топлива - Сущность 4\n";
 					std::cout << "6 - Контрагент - Сущность 5\n";
 					std::cout << "7 - Сформировать отчет 1\n";
-					std::cout << "8 - Сформировать отчет 2 и т.д.\n";
+					std::cout << "8 - Сформировать отчет 2\n";
 					std::cout << "9 - Сохранить в файл\n";
 					std::cout << "10 - Перейти к другому элементу(вернутся к первому уровню).\n";
 					std::cout << "Введите число, для выбора действия!\n";
@@ -349,9 +366,9 @@ int main()
 						} while (choose != 5);
 					}					
 					else if (choose == 7)
-						0;//TODO: do
+						currAutoObj.report1();
 					else if (choose == 8)
-						0;//TODO:do
+						currAutoObj.report2();
 					else if (choose == 9)
 					{
 						
@@ -406,19 +423,60 @@ bool AutoClass::dirExists(string dirName_in)
 		return false;    // директория не существует!
 }
 
-bool AutoClass::fileExists(string dirName_in)
+//Разрез видов топлива и разрез продавцов
+void AutoClass::report1()
 {
-	DWORD ftyp = GetFileAttributesA(dirName_in.c_str());
-	if (ftyp == INVALID_FILE_ATTRIBUTES)
-		return false;  //что-то не верно с путём
+	for (std::map<int, Selling>::iterator selling = sellings.begin(); selling != sellings.end(); ++selling)
+	{
+		cout << Sellings[2] << selling->second.id_order << endl;
+		std::map<int, Fuel>::iterator fuelIter = fuels.find(selling->second.id_fuel);
+		if (fuelIter != fuels.end())
+		{
+			cout << Fuels[2] << Fuels[3] << fuelIter->second.name << endl;
+			cout << Fuels[2] << Fuels[4] << fuelIter->second.cost << endl;
+		}
+		std::map<int, Vendor>::iterator vendorIter = vendors.find(selling->second.id_vendor);
+		if (vendorIter != vendors.end())
+		{
+			cout << Vendors[4] << vendorIter->second.name_vendor << endl;
+			
+		}
+		cout << Sellings[5] << selling->second.amount << endl;
+	}
+}
 
-	if (ftyp & FILE_ATTRIBUTE_NORMAL)
-		return true;   // директория существует
 
-	return false;    // директория не существует!
+void AutoClass::report2()
+{
+	std::map<int, double> summaFuel;
+	std::map<int, double> summaVendor;
+	for (std::map<int, Selling>::iterator selling = sellings.begin(); selling != sellings.end(); ++selling)
+	{
+		cout << Sellings[2] << selling->second.id_order << endl;
+		std::map<int, Fuel>::iterator fuelIter = fuels.find(selling->second.id_fuel);
+		if (fuelIter != fuels.end())
+		{
+			if(summaFuel.find(selling->second.id_fuel) != summaFuel.end())
+				summaFuel[selling->second.id_fuel] += fuelIter->second.cost;
+			else
+				summaFuel[selling->second.id_fuel] = fuelIter->second.cost;
+			cout << Fuels[2] << Fuels[3] << fuelIter->second.name << endl;
+			cout << Fuels[2] << Fuels[4] << fuelIter->second.cost << endl;
+			
+		}
+		std::map<int, Vendor>::iterator vendorIter = vendors.find(selling->second.id_vendor);
+		if (vendorIter != vendors.end())
+		{
+			cout << Vendors[4] << vendorIter->second.name_vendor << endl;
+			
+		}
+		cout << Sellings[5] << selling->second.amount << endl;
+	}
 }
 
 #pragma region input
+
+
 
 void AutoClass::inputFuel(Fuel fuel)
 {
@@ -512,6 +570,10 @@ void AutoClass::addSelling(Selling selling)
 		std::cin.clear();
 		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 	}
+	else if (fuels.find(selling.id_fuel) != fuels.end()) {
+		verify = false;
+		std::cout << "Номер не существует\n";
+	}
 	std::cout << "Введите номер продавца" << std::endl;
 	std::cin >> selling.id_vendor;
 	if (!std::cin)
@@ -520,6 +582,10 @@ void AutoClass::addSelling(Selling selling)
 		std::cout << "Введено не целое число\n";
 		std::cin.clear();
 		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+	}
+	else if (vendors.find(selling.id_vendor) != vendors.end()) {
+		verify = false;
+		std::cout << "Номер не существует\n";
 	}
 	
 	
@@ -707,6 +773,11 @@ void AutoClass::updateSelling(Selling selling)
 			std::cin.clear();
 			std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 		}
+		else if (fuels.find(selling.id_fuel) != fuels.end()) {
+			verify = false;
+			std::cout << "Номер не существует\n";
+		}
+
 		std::cout << "Введите номер продавца" << std::endl;
 		std::cin >> selling.id_vendor;
 		if (!std::cin)
@@ -715,6 +786,10 @@ void AutoClass::updateSelling(Selling selling)
 			std::cout << "Введено не целое число\n";
 			std::cin.clear();
 			std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+		}
+		else if (vendors.find(selling.id_vendor) != vendors.end()) {
+			verify = false;
+			std::cout << "Номер не существует\n";
 		}
 
 

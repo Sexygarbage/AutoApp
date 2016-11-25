@@ -1,1 +1,9 @@
-
+Count map: 2
+Fuel: 1
+Cost: 66
+Name: ְ82
+Amount: 88
+Fuel: 2
+Cost: 62.5
+Name: ֳאס
+Amount: 45
