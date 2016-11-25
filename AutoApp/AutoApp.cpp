@@ -184,10 +184,13 @@ int main()
 	do
 	{
 #pragma region 1_level
+		std::cout << "---------------------------------------------------------------\n";
 		std::cout << "1 - Выбор элемента из массива, с которым планируется работать.\n";
 		std::cout << "2 - Cписок действий\n";
 		std::cout << "0 - Завершение программы\n";
+		std::cout << "---------------------------------------------------------------\n";
 		std::cout << "Введите число, для выбора действия!\n";
+		std::cout << "---------------------------------------------------------------\n";
 			cin >> choose;
 			if (!std::cin)
 			{				
@@ -219,6 +222,7 @@ int main()
 				do
 				{
 #pragma region 2_level
+					std::cout << "---------------------------------------------------------------\n";
 					std::cout << "1 - Загрузить из файла\n";
 					std::cout << "2 - Топливо - Сущность 1\n";
 					std::cout << "3 - Учет продаж - Сущность 2\n";
@@ -229,7 +233,9 @@ int main()
 					std::cout << "8 - Сформировать отчет 2\n";
 					std::cout << "9 - Сохранить в файл\n";
 					std::cout << "10 - Перейти к другому элементу(вернутся к первому уровню).\n";
+					std::cout << "---------------------------------------------------------------\n";
 					std::cout << "Введите число, для выбора действия!\n";
+					std::cout << "---------------------------------------------------------------\n";
 					cin >> choose;
 					if (!std::cin)
 					{
@@ -239,9 +245,12 @@ int main()
 					}
 					else if (choose == 1)
 					{
+						std::cout << "---------------------------------------------------------------\n";
 						cout << "1 - Ввести путь к файлам для загрузки\n";
 						cout << "2 - Не вводить вручную, выбрать путь по умолчанию\n";
+						std::cout << "---------------------------------------------------------------\n";
 						std::cout << "Введите число, для выбора действия!\n";
+						std::cout << "---------------------------------------------------------------\n";
 						cin >> choose;
 						if (!std::cin)
 						{
@@ -270,12 +279,15 @@ int main()
 						int chooseEntity = choose;
 						do {
 #pragma region 3_level
+							std::cout << "---------------------------------------------------------------\n";
 							std::cout << "1 - добавить\n";
 							std::cout << "2 - изменить\n";
 							std::cout << "3 - удалить\n";
 							std::cout << "4 - вывести на экран\n";
 							std::cout << "5 - вернутся к списку действий\n";
+							std::cout << "---------------------------------------------------------------\n";
 							std::cout << "Введите число, для выбора действия!\n";
+							std::cout << "---------------------------------------------------------------\n";
 							cin >> choose;
 							if (!std::cin)
 							{
@@ -372,10 +384,12 @@ int main()
 					else if (choose == 9)
 					{
 						
-						
+						std::cout << "---------------------------------------------------------------\n";
 						cout << "1 - Ввести путь к файлам для сохранения\n";
-						cout << "2 - Не вводить вручную, выбрать путь по умолчанию\n";						
+						cout << "2 - Не вводить вручную, выбрать путь по умолчанию\n";	
+						std::cout << "---------------------------------------------------------------\n";
 						std::cout << "Введите число, для выбора действия!\n";
+						std::cout << "---------------------------------------------------------------\n";
 						cin >> choose;
 						if (!std::cin)
 						{
@@ -426,52 +440,80 @@ bool AutoClass::dirExists(string dirName_in)
 //Разрез видов топлива и разрез продавцов
 void AutoClass::report1()
 {
+	std::cout << "--------------------------Отчет-№-1----------------------\n";
 	for (std::map<int, Selling>::iterator selling = sellings.begin(); selling != sellings.end(); ++selling)
 	{
 		cout << Sellings[2] << selling->second.id_order << endl;
 		std::map<int, Fuel>::iterator fuelIter = fuels.find(selling->second.id_fuel);
 		if (fuelIter != fuels.end())
 		{
-			cout << Fuels[2] << Fuels[3] << fuelIter->second.name << endl;
-			cout << Fuels[2] << Fuels[4] << fuelIter->second.cost << endl;
+			cout << Fuels[2] << selling->second.id_fuel << endl;
+			cout << "Название топлива" << fuelIter->second.name << endl;
+			cout << "Цена топлива за 1 единицу Amount: " << fuelIter->second.cost << endl;
+			cout << "Полученно денег за заказ: " << selling->second.amount*fuelIter->second.cost << endl;
 		}
 		std::map<int, Vendor>::iterator vendorIter = vendors.find(selling->second.id_vendor);
 		if (vendorIter != vendors.end())
 		{
-			cout << Vendors[4] << vendorIter->second.name_vendor << endl;
+			cout << Vendors[2] << selling->second.id_fuel << endl;
+			cout << "Имя продавца: " << vendorIter->second.name_vendor << endl;
 			
 		}
 		cout << Sellings[5] << selling->second.amount << endl;
+		
 	}
+	std::cout << "-------------окончание-Отчета-№-1----------------------\n";
 }
 
-
+//Сумма полученных дененг по видам топлива
 void AutoClass::report2()
 {
+	std::cout << "--------------------------Отчет-№-2----------------------\n";
 	std::map<int, double> summaFuel;
-	std::map<int, double> summaVendor;
+	//std::map<int, double> summaAmount;
 	for (std::map<int, Selling>::iterator selling = sellings.begin(); selling != sellings.end(); ++selling)
 	{
-		cout << Sellings[2] << selling->second.id_order << endl;
+		//cout << Sellings[2] << selling->second.id_order << endl;
 		std::map<int, Fuel>::iterator fuelIter = fuels.find(selling->second.id_fuel);
 		if (fuelIter != fuels.end())
 		{
 			if(summaFuel.find(selling->second.id_fuel) != summaFuel.end())
-				summaFuel[selling->second.id_fuel] += fuelIter->second.cost;
+				summaFuel[selling->second.id_fuel] += fuelIter->second.cost * selling->second.amount;
 			else
-				summaFuel[selling->second.id_fuel] = fuelIter->second.cost;
-			cout << Fuels[2] << Fuels[3] << fuelIter->second.name << endl;
-			cout << Fuels[2] << Fuels[4] << fuelIter->second.cost << endl;
-			
+				summaFuel[selling->second.id_fuel] = fuelIter->second.cost * selling->second.amount;
+
+			/*if (summaAmount.find(selling->second.id_fuel) != summaAmount.end())
+				summaAmount[selling->second.id_fuel] += selling->second.amount;
+			else
+				summaAmount[selling->second.id_fuel] = selling->second.amount;
+			//cout << Fuels[2] << Fuels[3] << fuelIter->second.name << endl;
+			//cout << Fuels[2] << Fuels[4] << fuelIter->second.cost << endl;
+			*/
 		}
 		std::map<int, Vendor>::iterator vendorIter = vendors.find(selling->second.id_vendor);
 		if (vendorIter != vendors.end())
 		{
-			cout << Vendors[4] << vendorIter->second.name_vendor << endl;
+			//cout << Vendors[4] << vendorIter->second.name_vendor << endl;
 			
 		}
-		cout << Sellings[5] << selling->second.amount << endl;
+		//cout << Sellings[5] << selling->second.amount << endl;
 	}
+
+	for (std::map<int, double>::iterator summaFuelIter = summaFuel.begin(); summaFuelIter != summaFuel.end(); ++summaFuelIter)
+	{
+		std::map<int, Fuel>::iterator fuelIter = fuels.find(summaFuelIter->first);
+		if (fuelIter != fuels.end())
+		{
+			cout << Fuels[2] << fuelIter->second.id_fuel << endl;
+			cout << Fuels[2] << Fuels[3] << fuelIter->second.name << endl;
+			cout << Fuels[2] << Fuels[4] << fuelIter->second.cost << endl;
+			cout << "Всего получено денег со всех заказов по указанному выше виду топлива: " << summaFuelIter->second << endl;
+		//	if(summaAmount.find(summaFuelIter->first) != summaAmount.end())
+			//	cout << "Всего получено денег со всех заказов по всем видам топлива: " << summaFuelIter->second*summaAmount.find(summaFuelIter->first)->second << endl;
+			//cout << "Всего получено денег со всех заказов по всем видам топлива: " << summaFuelIter->second << endl;
+		}
+	}
+	std::cout << "-------------окончание-Отчета-№-2----------------------\n";
 }
 
 #pragma region input
@@ -1257,7 +1299,8 @@ void AutoClass::readFromAll(string path)
 void AutoClass::readFromFuels(string path)
 {
 	Fuel fuel;
-	int count_map=0;
+	int count_map = 0; 
+
 	//чтение из файла в структуру(сущность fuel)
 	//FILE *fread;
 	//fread = fopen("fuel.txt", "r");
@@ -1266,17 +1309,18 @@ void AutoClass::readFromFuels(string path)
 	{
 
 		fin.ignore(Fuels[1].size());
-		fin >> count_map; if (count_map == 0 || count_map == -1) cout << "Не добавлено" << endl;
+		fin >> count_map; if (count_map == 0 || count_map == -1) cout << "Не добавлено Топливо" << endl;
 		fin.ignore(strlen("\n"));
 		for (int i = 0; i < count_map; i++)
 		{
+			bool verify = true;
 			//fin.ignore(strlen("Fuel: "));
 			fin.ignore(Fuels[2].size());
 			fin >> fuel.id_fuel;
 			if (fuels.find(fuel.id_fuel) != fuels.end())
 			{
 				cout << "Номер уже существует" << endl;
-				continue;
+				verify = false;
 
 			}
 			else
@@ -1291,7 +1335,7 @@ void AutoClass::readFromFuels(string path)
 			if (fuel.cost < 0)
 			{
 				cout << "Значение отрицательно, запись не будет считана" << endl;
-				continue;
+				verify = false;
 			}
 			else
 			{
@@ -1311,7 +1355,7 @@ void AutoClass::readFromFuels(string path)
 			if (fuel.amount < 0)
 			{
 				cout << "Значение отрицательно, запись не будет считана" << endl;
-				continue;
+				verify = false;
 			}
 			else
 			{
@@ -1319,8 +1363,16 @@ void AutoClass::readFromFuels(string path)
 			}
 			fin.ignore(strlen("\n"));
 
-			fuels[fuel.id_fuel] = fuel;
-			cout << " - Добавлено\n";
+			if (verify)
+			{
+				fuels[fuel.id_fuel] = fuel;
+				cout << " - Добавлено Топливо\n";
+			}
+			else
+			{
+				cout << " - Топливо не добавлено\n";
+			}
+			
 		}
 	}
 	else
@@ -1337,17 +1389,18 @@ void AutoClass::readFromSelling(string path)
 	if (fin.is_open())
 	{
 		fin.ignore(Sellings[1].size());
-		fin >> count_map; if (count_map == 0 || count_map == -1) cout << "Не добавлено" << endl;
+		fin >> count_map; if (count_map == 0 || count_map == -1) cout << "Не добавлено Учет продаж" << endl;
 		fin.ignore(strlen("\n"));
 		for (int i = 0; i < count_map; i++)
 		{
+			bool verify = true;
 			fin.ignore(Sellings[2].size());
 			fin >> selling.id_order;
 			fin.ignore(strlen("\n"));
 			if (sellings.find(selling.id_order) != sellings.end())
 			{
 				cout << "Номер уже существует" << endl;
-				continue;
+				verify = false;;
 			}
 			else
 			{
@@ -1360,7 +1413,7 @@ void AutoClass::readFromSelling(string path)
 			if (fuels.find(selling.id_fuel) == fuels.end())
 			{
 				cout << "Номера не существует, запись не будет считана" << endl;
-				continue;
+				verify = false;
 			}
 			else
 			{
@@ -1373,7 +1426,7 @@ void AutoClass::readFromSelling(string path)
 			if (vendors.find(selling.id_vendor) == vendors.end())
 			{
 				cout << "Номера не существует, запись не будет считана" << endl;
-				continue;
+				verify = false;
 			}
 			else
 			{
@@ -1386,7 +1439,7 @@ void AutoClass::readFromSelling(string path)
 			if (selling.amount < 0)
 			{
 				cout << "Значение отрицательно, запись не будет считана" << endl;
-				continue;
+				verify = false;
 			}
 			else
 			{
@@ -1394,9 +1447,14 @@ void AutoClass::readFromSelling(string path)
 			}
 			fin.ignore(strlen("\n"));
 
-
-			sellings[selling.id_order] = selling;
-			cout << " - Добавлено\n";
+			if (verify) {
+				sellings[selling.id_order] = selling;
+				cout << " - Добавлен Учет продаж\n";
+			}
+			else
+			{
+				cout << " - Учет продаж не добавлен\n";
+			}
 		}
 	}
 	else
@@ -1412,18 +1470,20 @@ void AutoClass::readFromVendors(string path)
 	ifstream fin(path + Vendors[0]);
 	if (fin.is_open())
 	{
+		
 		fin.ignore(Vendors[1].size());
-		fin >> count_map; if (count_map == 0 || count_map == -1) cout << "Не добавлено" << endl;
+		fin >> count_map; if (count_map == 0 || count_map == -1) cout << "Не добавлен Торговец" << endl;
 		fin.ignore(strlen("\n"));
 		for (int i = 0; i < count_map; i++)
 		{
+			bool verify = true;
 			fin.ignore(Vendors[2].size());
 			fin >> vendor.id_vendor;
 			fin.ignore(strlen("\n"));
 			if (vendors.find(vendor.id_vendor) != vendors.end())
 			{
 				cout << "Номер уже существует" << endl;
-				continue;
+				verify = false;
 			}
 			else
 			{
@@ -1435,8 +1495,15 @@ void AutoClass::readFromVendors(string path)
 			fin.ignore(strlen("\n"));
 			cout << Vendors[3] << vendor.name_vendor << endl;
 
-			inputVendor(vendor);
-			cout << " - Добавлено\n";
+			if (verify)
+			{
+				inputVendor(vendor);
+				cout << " - Добавлен Торговец\n";
+			}
+			else
+			{
+				cout << " - Торговец не добавлен\n";
+			}
 		}
 	}
 	else
@@ -1453,17 +1520,18 @@ void AutoClass::readFromPurchases(string path)
 	if (fin.is_open())
 	{
 		fin.ignore(Purchases[1].size());
-		fin >> count_map; if (count_map == 0 || count_map == -1) cout << "Не добавлено" << endl;
+		fin >> count_map; if (count_map == 0 || count_map == -1) cout << "Не добавлено Закупки топлива" << endl;
 		fin.ignore(strlen("\n"));
 		for (int i = 0; i < count_map; i++)
 		{
+			bool verify = true;
 			fin.ignore(Purchases[2].size());
 			fin >> purchase.id_purchase;
 			fin.ignore(strlen("\n"));
 			if (purchases.find(purchase.id_purchase) != purchases.end())
 			{
 				cout << "Номер уже существует" << endl;
-				continue;
+				verify = false;
 			}
 			else
 			{
@@ -1476,7 +1544,7 @@ void AutoClass::readFromPurchases(string path)
 			if (agents.find(purchase.id_agent) == agents.end())
 			{
 				cout << "Номера не существует, запись не будет считана" << endl;
-				continue;
+				verify = false;
 			}
 			else
 			{
@@ -1489,7 +1557,7 @@ void AutoClass::readFromPurchases(string path)
 			if (fuels.find(purchase.id_fuel) == fuels.end())
 			{
 				cout << "Номера не существует, запись не будет считана" << endl;
-				continue;
+				verify = false;
 			}
 			else
 			{
@@ -1502,15 +1570,23 @@ void AutoClass::readFromPurchases(string path)
 			if (purchase.amount < 0)
 			{
 				cout << "Значение отрицательно, запись не будет считана" << endl;
-				continue;
+				verify = false;
 			}
 			else
 			{
 				cout << Purchases[5] << purchase.amount << endl;
 			}
 
-			purchases[purchase.id_purchase] = purchase;
-			cout << " - Добавлено\n";
+			if (verify) 
+			{
+				purchases[purchase.id_purchase] = purchase;
+				cout << " - Добавлено Закупки топлива\n";
+			}
+			else
+			{
+				cout << " - Закупки топлива не добавлено\n";
+			}
+
 		}
 	}
 	else
@@ -1529,16 +1605,17 @@ void AutoClass::readFromAgents(string path)
 	{
 		
 		fin.ignore(Agents[1].size());
-		fin >> count_map; if (count_map == 0 || count_map == -1) cout << "Не добавлено" << endl;
+		fin >> count_map; if (count_map == 0 || count_map == -1) cout << "Не добавлен Контрагент" << endl;
 		fin.ignore(strlen("\n"));
 		for (int i = 0; i < count_map; i++)
 		{
+			bool verify = true;
 			fin.ignore(Agents[2].size());
 			fin >> agent.id_agent;
 			if (agents.find(agent.id_agent) != agents.end())
 			{
 				cout << "Номер уже существует" << endl;
-				continue;
+				verify = false;
 			}
 			else
 			{
@@ -1552,8 +1629,15 @@ void AutoClass::readFromAgents(string path)
 			fin.ignore(strlen("\n"));
 			cout << Agents[3] << agent.name_agent << endl;
 
-			inputAgent(agent);
-			cout << " - Добавлено\n";
+			if (verify)
+			{
+				inputAgent(agent);
+				cout << " - Добавлен Контрагент\n";
+			}
+			else
+			{
+				cout << " - Контрагент не добавлен\n";
+			}
 		}
 	}
 	else
